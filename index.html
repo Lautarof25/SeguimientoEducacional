@@ -26,6 +26,7 @@
             margin: 0;
             background: var(--bg);
             color: var(--text);
+            overflow-x: hidden;
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif
         }
 
@@ -102,7 +103,26 @@
         }
 
         main {
-            padding: 22px 18px
+            padding: 0 18px 22px
+        }
+
+        .notion-frame {
+            display: block;
+            width: 100%;
+            height: min(78vh, 900px);
+            min-height: 600px;
+            border: 0;
+            background: #fff
+        }
+
+        @media(max-width:699px) {
+            .notion-frame {
+                width: 100vw;
+                max-width: none;
+                margin-left: calc((100% - 100vw) / 2);
+                margin-right: calc((100% - 100vw) / 2);
+                min-height: calc(100vh - 24px)
+            }
         }
 
         .eyebrow {
@@ -311,7 +331,7 @@
             }
 
             main {
-                padding: 36px 28px
+                padding: 0 28px 36px
             }
 
             h1 {
@@ -333,10 +353,6 @@
     <div class="app">
         <div class="shell" id="app">
             <header>
-                <div class="top">
-                    <div class="brand">Aula<span style="color:#635bff">.</span></div>
-                    <div class="avatar">LF</div>
-                </div>
                 <div class="progress-wrap">
                     <div class="progress-label"><span>Tu progreso</span><strong id="percent">35%</strong></div>
                     <div class="bar">
@@ -346,25 +362,8 @@
             </header>
 
             <main>
-                <div class="eyebrow">Módulo 1 · Lección 3</div>
-                <h1>Introducción a las páginas web</h1>
-                <p class="intro">Aprendé los conceptos fundamentales antes de pasar a la siguiente actividad.</p>
-
+                <iframe class="notion-frame" src="https://fan-utahraptor-cfe.notion.site/ebd/2a20c69b2e908195ac29ddf9c5af0cf4" title="Contenido de la lección" allowfullscreen></iframe>
                 <section class="lesson" id="lesson">
-                    <div class="lesson-body">
-                        <div class="lesson-icon">✦</div>
-                        <h2>¿Qué es una página web?</h2>
-                        <p>Una página web es un documento que podemos visualizar desde un navegador. Está construida con
-                            tecnologías como HTML, CSS y JavaScript.</p>
-                        <div class="info">
-                            <strong>Idea clave</strong>
-                            <span>HTML define la estructura, CSS se encarga del diseño y JavaScript agrega
-                                interacción.</span>
-                        </div>
-                        <p>En las próximas lecciones vas a aprender a utilizar estas tecnologías para construir tu
-                            propio proyecto.</p>
-                    </div>
-
                     <div class="action">
                         <label class="check">
                             <input type="checkbox" id="done">
@@ -378,11 +377,6 @@
                         <div class="status">✓ Lección completada. ¡Buen trabajo!</div>
                     </div>
                 </section>
-
-                <div class="next">
-                    <div><small>Siguiente</small><strong>Actividad práctica: tu primera página</strong></div>
-                    <div class="arrow">›</div>
-                </div>
             </main>
         </div>
     </div>
@@ -391,7 +385,6 @@
         const done = document.querySelector('#done');
         const button = document.querySelector('#continue');
         const lesson = document.querySelector('#lesson');
-        const app = document.querySelector('#app');
         const fill = document.querySelector('#fill');
         const percent = document.querySelector('#percent');
 
