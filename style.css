@@ -37,7 +37,7 @@ body {
 header {
     background: var(--card);
     border-bottom: 1px solid var(--line);
-    padding: 18px 18px 16px;
+    padding: 2px 18px 2px;
     position: sticky;
     top: 0;
     z-index: 5
