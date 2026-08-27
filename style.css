@@ -88,7 +88,7 @@ header {
 
 .fill {
     height: 100%;
-    width: 35%;
+    width: 0%;
     background: var(--primary);
     border-radius: 99px;
     transition: .3s
@@ -98,17 +98,44 @@ main {
     padding: 0 18px 22px
 }
 
+.lessons {
+    display: grid;
+    gap: 22px;
+}
+
 .notion-frame {
     display: block;
     width: 100%;
-    height: min(78vh, 900px);
-    min-height: 600px;
+    height: calc(100% + 44px);
+    min-height: 0;
     border: 0;
+    background: #fff;
+    transform: translateY(-44px)
+}
+
+.notion-frame-wrap {
+    height: min(70vh, 820px);
+    min-height: 600px;
+    overflow: hidden;
     background: #fff
 }
 
+.lesson-heading {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    color: var(--primary);
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.lesson .notion-frame {
+    height: calc(100% + 44px)
+}
+
 @media(max-width:699px) {
-    .notion-frame {
+    .notion-frame-wrap {
         width: 100vw;
         max-width: none;
         margin-left: calc((100% - 100vw) / 2);
@@ -145,6 +172,10 @@ h1 {
     border-radius: 22px;
     box-shadow: var(--shadow);
     overflow: hidden
+}
+
+.lesson:not(.active) {
+    display: none
 }
 
 .lesson-body {
@@ -284,7 +315,7 @@ button:disabled {
     display: block
 }
 
-.completed .lesson {
+.completed {
     border-color: #bfead4
 }
 
