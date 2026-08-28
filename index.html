@@ -10,9 +10,40 @@
 </head>
 
 <body>
+    <section class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+        <div class="auth-card">
+            <p class="eyebrow">Aula</p>
+            <h1 id="auth-title">Continúa tu recorrido</h1>
+            <p class="auth-intro" id="auth-intro">Inicia sesión para guardar tu progreso en cada clase.</p>
+
+            <form id="auth-form" novalidate>
+                <label class="field">
+                    <span>Email</span>
+                    <input id="email" name="email" type="email" autocomplete="email" required>
+                </label>
+                <label class="field">
+                    <span>Contraseña</span>
+                    <input id="password" name="password" type="password" autocomplete="current-password" minlength="6" required>
+                </label>
+                <label class="field confirm-field" id="confirm-field" hidden>
+                    <span>Confirmar contraseña</span>
+                    <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="6">
+                </label>
+                <button class="auth-submit" id="auth-submit" type="submit">Iniciar sesión</button>
+                <p class="auth-message" id="auth-message" role="alert" aria-live="polite"></p>
+            </form>
+
+            <button class="auth-toggle" id="auth-toggle" type="button">¿Todavía no tienes una cuenta? Regístrate</button>
+        </div>
+    </section>
+
     <div class="app">
-        <div class="shell" id="app">
+        <div class="shell" id="app" hidden>
             <header>
+                <div class="top">
+                    <span class="brand">Aula</span>
+                    <button class="logout" id="logout" type="button">Cerrar sesión</button>
+                </div>
                 <div class="progress-wrap">
                     <div class="progress-label"><span>Tu progreso</span><strong id="percent">0%</strong></div>
                     <div class="bar">
@@ -110,6 +141,13 @@
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+window.SUPABASE_CONFIG = {
+		url: 'https://kqcttyhlncouqffucvda.supabase.co',
+		anonKey: 'sb_publishable_1M2isbWbg2zwyfd9fMrytg_jpkNoK9b'
+};
+    </script>
     <script src="javascript.js"></script>
 </body>
 
