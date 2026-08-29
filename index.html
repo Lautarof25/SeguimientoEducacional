@@ -64,24 +64,62 @@
                                 <button class="secondary-btn" id="view-progress" type="button">Ver progreso</button>
                             </div>
                         </div>
+                    </div>
 
-                        <article class="course-card" aria-label="Tarjeta del curso">
+                    <div class="course-grid" aria-label="Cursos disponibles">
+                        <button class="course-card" type="button" data-course-id="ingenieria-de-prompting" aria-pressed="false" aria-label="Seleccionar curso Ingeniería de prompting">
                             <div class="course-card-top">
                                 <span class="course-tag">Curso</span>
                                 <span class="course-level">Nivel inicial</span>
                             </div>
-                            <h3>Seguimiento Educacional</h3>
-                            <p>Desarrollo de contenido, avance del aprendizaje y seguimiento por clases.</p>
+                            <h3>Ingenieria de prompting</h3>
+                            <p>Un curso para aprender lo básico de la ingenieria de promptings</p>
                             <ul class="course-meta">
                                 <li>4 clases</li>
                                 <li>Progreso visual</li>
                                 <li>Certificación</li>
                             </ul>
-                        </article>
+                        </button>
+
+                        <button class="course-card" type="button" data-course-id="productividad-personal" aria-pressed="false" aria-label="Seleccionar curso Productividad personal">
+                            <div class="course-card-top">
+                                <span class="course-tag">Curso</span>
+                                <span class="course-level">Nivel intermedio</span>
+                            </div>
+                            <h3>Productividad personal</h3>
+                            <p>Organizá mejor tu tiempo, tus prioridades y tus tareas diarias.</p>
+                            <ul class="course-meta">
+                                <li>4 clases</li>
+                                <li>Rutinas claras</li>
+                                <li>Herramientas útiles</li>
+                            </ul>
+                        </button>
+
+                        <button class="course-card" type="button" data-course-id="ventas-y-negociacion" aria-pressed="false" aria-label="Seleccionar curso Ventas y negociación">
+                            <div class="course-card-top">
+                                <span class="course-tag">Curso</span>
+                                <span class="course-level">Nivel avanzado</span>
+                            </div>
+                            <h3>Ventas y negociación</h3>
+                            <p>Desarrollá estrategias para vender mejor y negociar con confianza.</p>
+                            <ul class="course-meta">
+                                <li>4 clases</li>
+                                <li>Comunicación</li>
+                                <li>Case studies</li>
+                            </ul>
+                        </button>
+                    </div>
+
+                    <div class="course-picker" aria-label="Selector de cursos">
+                        <div class="picker-header">
+                            <span class="eyebrow">Cursos disponibles</span>
+                            <span class="picker-count">1 disponible</span>
+                        </div>
+                        <p class="course-state" id="course-state">Elegí un curso para cargar tu progreso.</p>
                     </div>
                 </section>
 
-                <div class="lessons">
+                <div class="lessons" hidden>
                     <section class="lesson active" id="lesson-1">
                         <div class="lesson-heading">
                             <span>Clase 1</span>

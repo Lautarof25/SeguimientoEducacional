@@ -14,15 +14,36 @@ const percent = document.querySelector('#percent');
 const header = document.querySelector('header');
 const startCourseButton = document.querySelector('#start-course');
 const viewProgressButton = document.querySelector('#view-progress');
+const courseCards = [...document.querySelectorAll('.course-card')];
+const courseState = document.querySelector('#course-state');
 const lessons = [...document.querySelectorAll('.lesson')];
 const config = window.SUPABASE_CONFIG || {};
 const supabaseClient = window.supabase && config.url && config.anonKey
     ? window.supabase.createClient(config.url, config.anonKey)
     : null;
 
+const availableCourses = [{
+    id: 'ingenieria-de-prompting',
+    name: 'Ingeniería de prompting',
+    level: 'Nivel inicial',
+    totalLessons: 4
+}, {
+    id: 'productividad-personal',
+    name: 'Productividad personal',
+    level: 'Nivel intermedio',
+    totalLessons: 4
+}, {
+    id: 'ventas-y-negociacion',
+    name: 'Ventas y negociación',
+    level: 'Nivel avanzado',
+    totalLessons: 4
+}];
+
 let isRegistering = false;
 let currentLesson = 0;
 let completedLessons = 0;
+let selectedCourseId = null;
+let currentUser = null;
 
 function setMessage(message, isError = false) {
     authMessage.textContent = message;
@@ -61,8 +82,90 @@ function setAuthMode(registering) {
     setMessage('');
 }
 
+function getSelectedCourse() {
+    if (!selectedCourseId) return null;
+    return availableCourses.find((course) => course.id === selectedCourseId) || null;
+}
+
+function getProgressStorageKey(userId) {
+    return `aula-course-progress:${userId || 'guest'}:${selectedCourseId}`;
+}
+
+function getSavedProgress(userId) {
+    const course = getSelectedCourse();
+    if (!course) return 0;
+
+    const rawValue = localStorage.getItem(getProgressStorageKey(userId));
+    if (!rawValue) return 0;
+
+    try {
+        const parsed = JSON.parse(rawValue);
+        const savedProgress = Number(parsed.completedLessons || 0);
+        return Math.max(0, Math.min(savedProgress, course.totalLessons));
+    } catch (error) {
+        return 0;
+    }
+}
+
+function updateCourseStateMessage() {
+    if (!courseState) return;
+
+    const course = getSelectedCourse();
+    const totalLessons = course?.totalLessons || lessons.length;
+
+    if (!course) {
+        courseState.textContent = 'Elegí un curso para cargar tu progreso.';
+        return;
+    }
+
+    if (completedLessons === 0) {
+        courseState.textContent = `Elegiste ${course.name}. Aún no comenzaste este curso.`;
+        return;
+    }
+
+    if (completedLessons >= totalLessons) {
+        courseState.textContent = `Elegiste ${course.name}. Completaste todas las ${totalLessons} clases de este curso.`;
+        return;
+    }
+
+    courseState.textContent = `Elegiste ${course.name}. Quedaste en la clase ${completedLessons + 1} de ${totalLessons}.`;
+}
+
+function updateCourseButtons() {
+    courseCards.forEach((card) => {
+        const isSelected = card.dataset.courseId === selectedCourseId;
+        card.classList.toggle('selected', isSelected);
+        card.setAttribute('aria-pressed', String(isSelected));
+    });
+}
+
 function applyProgress() {
-    currentLesson = Math.min(completedLessons, lessons.length - 1);
+    const course = getSelectedCourse();
+    const totalLessons = course?.totalLessons || lessons.length;
+    const lessonsContainer = document.querySelector('.lessons');
+
+    lessonsContainer.hidden = !course;
+
+    if (!course) {
+        completedLessons = 0;
+        currentLesson = 0;
+        fill.style.width = '0%';
+        percent.textContent = '0%';
+        lessons.forEach((lesson) => {
+            lesson.classList.remove('active', 'completed');
+            const done = lesson.querySelector('.done');
+            const button = lesson.querySelector('.continue');
+            done.checked = false;
+            done.disabled = true;
+            button.disabled = true;
+            button.textContent = 'Continuar con el progreso →';
+        });
+        updateCourseStateMessage();
+        return;
+    }
+
+    currentLesson = Math.min(completedLessons, totalLessons - 1);
+
     lessons.forEach((lesson, index) => {
         const done = lesson.querySelector('.done');
         const button = lesson.querySelector('.continue');
@@ -75,30 +178,70 @@ function applyProgress() {
         lesson.classList.toggle('completed', isCompleted);
         lesson.classList.toggle('active', index === currentLesson);
     });
-    const progress = Math.round((completedLessons / lessons.length) * 100);
+
+    const progress = Math.round((completedLessons / totalLessons) * 100);
     fill.style.width = `${progress}%`;
     percent.textContent = `${progress}%`;
+    updateCourseOptionsText();
+    updateCourseStateMessage();
+}
+
+function updateCourseOptionsText() {
+    const course = getSelectedCourse();
+    const totalLessons = course?.totalLessons || lessons.length;
+    const selectorText = document.querySelector('.picker-count');
+    if (selectorText) {
+        selectorText.textContent = `${availableCourses.length} disponible${availableCourses.length > 1 ? 's' : ''}`;
+    }
+
+    const courseTitle = document.querySelector('.course-card h3');
+    const courseLevel = document.querySelector('.course-level');
+    if (courseTitle) courseTitle.textContent = course.name;
+    if (courseLevel) courseLevel.textContent = course.level;
+
+    const lessonList = document.querySelector('.course-meta li');
+    if (lessonList) {
+        lessonList.textContent = `${totalLessons} clases`;
+    }
 }
 
 async function loadProgress(user) {
-    const { data, error } = await supabaseClient
-        .from('lesson_progress')
-        .select('completed_lessons')
-        .eq('user_id', user.id)
-        .maybeSingle();
+    currentUser = user;
+    const course = getSelectedCourse();
+    if (!course) {
+        completedLessons = 0;
+        applyProgress();
+        return;
+    }
 
-    if (error) throw error;
-    completedLessons = Math.max(0, Math.min(data?.completed_lessons || 0, lessons.length));
+    const savedProgress = getSavedProgress(user?.id || 'guest');
+    completedLessons = savedProgress;
     applyProgress();
 }
 
 async function saveProgress(user) {
-    const { error } = await supabaseClient.from('lesson_progress').upsert({
-        user_id: user.id,
-        completed_lessons: completedLessons,
-        updated_at: new Date().toISOString()
-    });
-    if (error) throw error;
+    if (!selectedCourseId || !user) return;
+
+    const progressValue = {
+        completedLessons,
+        updatedAt: new Date().toISOString(),
+        courseId: selectedCourseId
+    };
+
+    localStorage.setItem(getProgressStorageKey(user.id), JSON.stringify(progressValue));
+
+    if (!supabaseClient) return;
+
+    try {
+        const { error } = await supabaseClient.from('lesson_progress').upsert({
+            user_id: user.id,
+            completed_lessons: completedLessons,
+            updated_at: new Date().toISOString()
+        });
+        if (error) throw error;
+    } catch (error) {
+        console.warn('No se pudo sincronizar el progreso con Supabase:', error);
+    }
 }
 
 async function startSession(session) {
@@ -170,6 +313,17 @@ viewProgressButton?.addEventListener('click', () => {
     window.scrollTo({ top: progressPosition, behavior: 'smooth' });
 });
 
+courseCards.forEach((card) => {
+    card.addEventListener('click', () => {
+        selectedCourseId = card.dataset.courseId;
+        updateCourseButtons();
+        void loadProgress(currentUser);
+    });
+});
+
+updateCourseButtons();
+applyProgress();
+
 lessons.forEach((lesson, index) => {
     const done = lesson.querySelector('.done');
     const button = lesson.querySelector('.continue');
@@ -180,14 +334,19 @@ lessons.forEach((lesson, index) => {
     });
 
     button.addEventListener('click', async () => {
-        if (index !== completedLessons || !supabaseClient) return;
+        const totalLessons = getSelectedCourse()?.totalLessons || lessons.length;
+        if (index !== completedLessons || completedLessons >= totalLessons) return;
+
         completedLessons += 1;
         applyProgress();
-        button.textContent = completedLessons === lessons.length ? 'Curso completado ✓' : 'Progreso actualizado ✓';
+        button.textContent = completedLessons === totalLessons ? 'Curso completado ✓' : 'Progreso actualizado ✓';
 
         try {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            await saveProgress(session.user);
+            if (!currentUser) {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                currentUser = session?.user || currentUser;
+            }
+            await saveProgress(currentUser);
         } catch (error) {
             completedLessons -= 1;
             applyProgress();
@@ -203,6 +362,9 @@ lessons.forEach((lesson, index) => {
         }
     });
 });
+
+updateCourseButtons();
+updateCourseStateMessage();
 
 if (!supabaseClient) {
     setMessage('Configura SUPABASE_CONFIG para habilitar el acceso.', true);
