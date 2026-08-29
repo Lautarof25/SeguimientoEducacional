@@ -17,6 +17,8 @@ const viewProgressButton = document.querySelector('#view-progress');
 const homePanel = document.querySelector('.home-panel');
 const courseCards = [...document.querySelectorAll('.course-card')];
 const courseState = document.querySelector('#course-state');
+const lessonSelector = document.querySelector('#lesson-selector');
+const lessonSelectorButtons = [...document.querySelectorAll('.lesson-chip')];
 const lessons = [...document.querySelectorAll('.lesson')];
 const config = window.SUPABASE_CONFIG || {};
 const supabaseClient = window.supabase && config.url && config.anonKey
@@ -140,6 +142,73 @@ function updateCourseButtons() {
     });
 }
 
+function updateLessonNavigationButtons() {
+    const course = getSelectedCourse();
+    document.querySelectorAll('.lesson-back').forEach((button) => {
+        const canGoBack = !!course && currentLesson > 0 && currentLesson > completedLessons;
+        button.hidden = !canGoBack;
+        button.disabled = !canGoBack;
+    });
+
+    document.querySelectorAll('.course-back').forEach((button) => {
+        button.hidden = !course;
+        button.disabled = !course;
+    });
+}
+
+function updateLessonSelector() {
+    if (!lessonSelector) return;
+
+    const course = getSelectedCourse();
+    const totalLessons = course?.totalLessons || lessons.length;
+    if (!course) {
+        lessonSelector.hidden = true;
+        return;
+    }
+
+    lessonSelector.hidden = false;
+    const label = lessonSelector.querySelector('.selector-label');
+    if (label) {
+        label.textContent = `${totalLessons} clases`;
+    }
+
+    lessonSelectorButtons.forEach((button) => {
+        const index = Number(button.dataset.lessonIndex || 0);
+        const isSelected = index === currentLesson;
+        const isAvailable = index <= completedLessons || completedLessons >= totalLessons;
+        button.classList.toggle('selected', isSelected);
+        button.disabled = !isAvailable;
+        button.setAttribute('aria-disabled', String(!isAvailable));
+    });
+}
+
+function scrollToLesson(index) {
+    const lesson = lessons[index];
+    if (!lesson) return;
+
+    const lessonPosition = lesson.getBoundingClientRect().top + window.scrollY;
+    const scrollOffset = header.offsetHeight + 16;
+    window.scrollTo({ top: lessonPosition - scrollOffset, behavior: 'smooth' });
+}
+
+function showLesson(index) {
+    const course = getSelectedCourse();
+    const totalLessons = course?.totalLessons || lessons.length;
+
+    const safeIndex = Math.min(Math.max(index, 0), totalLessons - 1);
+    if (completedLessons < totalLessons && safeIndex > completedLessons) {
+        currentLesson = completedLessons;
+    } else {
+        currentLesson = safeIndex;
+    }
+
+    lessons.forEach((lesson, lessonIndex) => {
+        lesson.classList.toggle('active', lessonIndex === currentLesson);
+    });
+    updateLessonNavigationButtons();
+    scrollToLesson(currentLesson);
+}
+
 function applyProgress() {
     const course = getSelectedCourse();
     const totalLessons = course?.totalLessons || lessons.length;
@@ -168,7 +237,11 @@ function applyProgress() {
         return;
     }
 
-    currentLesson = Math.min(completedLessons, totalLessons - 1);
+    if (completedLessons >= totalLessons) {
+        currentLesson = totalLessons - 1;
+    } else {
+        currentLesson = Math.min(Math.max(completedLessons, 0), totalLessons - 1);
+    }
 
     lessons.forEach((lesson, index) => {
         const done = lesson.querySelector('.done');
@@ -188,6 +261,8 @@ function applyProgress() {
     percent.textContent = `${progress}%`;
     updateCourseOptionsText();
     updateCourseStateMessage();
+    updateLessonNavigationButtons();
+    updateLessonSelector();
 }
 
 function updateCourseOptionsText() {
@@ -320,6 +395,7 @@ viewProgressButton?.addEventListener('click', () => {
 courseCards.forEach((card) => {
     card.addEventListener('click', () => {
         selectedCourseId = card.dataset.courseId;
+        currentLesson = 0;
         updateCourseButtons();
         void loadProgress(currentUser);
     });
@@ -327,6 +403,41 @@ courseCards.forEach((card) => {
 
 updateCourseButtons();
 applyProgress();
+
+const previousLessonButtons = document.querySelectorAll('.lesson-back');
+previousLessonButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        if (currentLesson <= 0 || currentLesson <= completedLessons) return;
+        showLesson(currentLesson - 1);
+    });
+});
+
+const courseBackButtons = document.querySelectorAll('.course-back');
+courseBackButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        selectedCourseId = null;
+        updateCourseButtons();
+        void loadProgress(currentUser);
+    });
+});
+
+lessonSelectorButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+        const targetLesson = Number(button.dataset.lessonIndex);
+        const maxAvailableLesson = completedLessons >= getSelectedCourse()?.totalLessons
+            ? getSelectedCourse().totalLessons - 1
+            : completedLessons;
+
+        if (targetLesson > maxAvailableLesson) return;
+
+        currentLesson = targetLesson;
+        lessons.forEach((lesson, index) => {
+            lesson.classList.toggle('active', index === targetLesson);
+        });
+        updateLessonSelector();
+        scrollToLesson(targetLesson);
+    });
+});
 
 lessons.forEach((lesson, index) => {
     const done = lesson.querySelector('.done');
@@ -342,6 +453,7 @@ lessons.forEach((lesson, index) => {
         if (index !== completedLessons || completedLessons >= totalLessons) return;
 
         completedLessons += 1;
+        currentLesson = Math.min(completedLessons, totalLessons - 1);
         applyProgress();
         button.textContent = completedLessons === totalLessons ? 'Curso completado ✓' : 'Progreso actualizado ✓';
 
@@ -353,6 +465,7 @@ lessons.forEach((lesson, index) => {
             await saveProgress(currentUser);
         } catch (error) {
             completedLessons -= 1;
+            currentLesson = Math.max(0, completedLessons);
             applyProgress();
             setMessage(`No se pudo guardar el progreso: ${error.message}`, true);
             return;
@@ -360,15 +473,14 @@ lessons.forEach((lesson, index) => {
 
         const nextLesson = lessons[completedLessons];
         if (nextLesson) {
-            const nextPosition = nextLesson.getBoundingClientRect().top + window.scrollY;
-            const scrollOffset = header.offsetHeight + 16;
-            window.scrollTo({ top: nextPosition - scrollOffset, behavior: 'smooth' });
+            scrollToLesson(completedLessons);
         }
     });
 });
 
 updateCourseButtons();
 updateCourseStateMessage();
+updateLessonNavigationButtons();
 
 if (!supabaseClient) {
     setMessage('Configura SUPABASE_CONFIG para habilitar el acceso.', true);
