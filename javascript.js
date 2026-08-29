@@ -20,9 +20,10 @@ const courseCards = [...document.querySelectorAll('.course-card')];
 const courseState = document.querySelector('#course-state');
 const courseHeader = document.querySelector('#course-header');
 const courseTitle = document.querySelector('#course-title');
-const courseDetails = document.querySelector('#course-details');
-const courseSummary = document.querySelector('#course-summary');
-const lessonSelector = document.querySelector('#lesson-selector');
+const brandHome = document.querySelector('#brand-home');
+const courseDetails = [...document.querySelectorAll('.course-details')];
+const courseSummary = [...document.querySelectorAll('.course-summary')];
+const lessonSelector = [...document.querySelectorAll('.lesson-selector')];
 const lessonSelectorButtons = [...document.querySelectorAll('.lesson-chip')];
 const lessons = [...document.querySelectorAll('.lesson')];
 const config = window.SUPABASE_CONFIG || {};
@@ -166,42 +167,54 @@ function updateCourseHeader() {
 
     if (!courseHeader || !courseTitle) return;
 
-    const shouldShowHeader = !!course && !!courseDetails && courseDetails.open;
+    const shouldShowHeader = !!course && courseDetails.some((detail) => detail.open);
     courseHeader.hidden = !shouldShowHeader;
     courseTitle.textContent = course ? course.name : '';
 }
 
 function updateCourseDetailsState() {
-    if (!courseDetails || !courseSummary) return;
+    if (!courseDetails.length || !courseSummary.length) return;
 
     const course = getSelectedCourse();
+    const isOpen = courseDetails.some((detail) => detail.open);
+
     if (!course) {
-        courseDetails.hidden = true;
-        courseDetails.open = true;
-        courseSummary.textContent = 'Ocultar clases';
+        courseDetails.forEach((detail) => {
+            detail.hidden = true;
+            detail.open = false;
+        });
+        courseSummary.forEach((summary) => {
+            summary.textContent = 'Mostrar clases';
+        });
         return;
     }
 
-    courseDetails.hidden = false;
-    courseSummary.textContent = courseDetails.open ? 'Ocultar clases' : 'Mostrar clases';
+    courseDetails.forEach((detail) => {
+        detail.hidden = false;
+    });
+    courseSummary.forEach((summary) => {
+        summary.textContent = isOpen ? 'Ocultar clases' : 'Mostrar clases';
+    });
     updateCourseHeader();
 }
 
 function updateLessonSelector() {
-    if (!lessonSelector) return;
+    if (!lessonSelector.length) return;
 
     const course = getSelectedCourse();
     const totalLessons = course?.totalLessons || lessons.length;
-    if (!course) {
-        lessonSelector.hidden = true;
-        return;
-    }
+    lessonSelector.forEach((selector) => {
+        if (!course) {
+            selector.hidden = true;
+            return;
+        }
 
-    lessonSelector.hidden = false;
-    const label = lessonSelector.querySelector('.selector-label');
-    if (label) {
-        label.textContent = `${totalLessons} clases`;
-    }
+        selector.hidden = false;
+        const label = selector.querySelector('.selector-label');
+        if (label) {
+            label.textContent = `${totalLessons} clases`;
+        }
+    });
 
     lessonSelectorButtons.forEach((button) => {
         const index = Number(button.dataset.lessonIndex || 0);
@@ -233,10 +246,10 @@ function showLesson(index) {
         currentLesson = safeIndex;
     }
 
-    if (courseDetails) {
-        courseDetails.open = false;
-        updateCourseDetailsState();
-    }
+    courseDetails.forEach((detail) => {
+        detail.open = false;
+    });
+    updateCourseDetailsState();
 
     lessons.forEach((lesson, lessonIndex) => {
         lesson.classList.toggle('active', lessonIndex === currentLesson);
@@ -250,12 +263,12 @@ function applyProgress() {
     const totalLessons = course?.totalLessons || lessons.length;
     const lessonsContainer = document.querySelector('.lessons');
 
-    if (progressWrap) {
-        progressWrap.hidden = !course;
-    }
-
     if (homePanel) {
         homePanel.hidden = !!course;
+    }
+
+    if (progressWrap) {
+        progressWrap.hidden = !course;
     }
     lessonsContainer.hidden = !course;
 
@@ -419,6 +432,18 @@ logout.addEventListener('click', async () => {
     await supabaseClient?.auth.signOut();
 });
 
+brandHome?.addEventListener('click', () => {
+    selectedCourseId = null;
+    currentLesson = 0;
+    updateCourseButtons();
+    courseDetails.forEach((detail) => {
+        detail.open = false;
+    });
+    updateCourseDetailsState();
+    void loadProgress(currentUser);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
 startCourseButton?.addEventListener('click', () => {
     const firstLesson = document.querySelector('#lesson-1');
     if (!firstLesson) return;
@@ -438,17 +463,19 @@ courseCards.forEach((card) => {
     card.addEventListener('click', () => {
         selectedCourseId = card.dataset.courseId;
         currentLesson = 0;
-        if (courseDetails) {
-            courseDetails.open = true;
-            updateCourseDetailsState();
-        }
+        courseDetails.forEach((detail) => {
+            detail.open = false;
+        });
+        updateCourseDetailsState();
         updateCourseButtons();
         void loadProgress(currentUser);
     });
 });
 
-courseDetails?.addEventListener('toggle', () => {
-    updateCourseDetailsState();
+courseDetails.forEach((detail) => {
+    detail.addEventListener('toggle', () => {
+        updateCourseDetailsState();
+    });
 });
 
 updateCourseButtons();
@@ -466,8 +493,14 @@ const courseBackButtons = document.querySelectorAll('.course-back');
 courseBackButtons.forEach((button) => {
     button.addEventListener('click', () => {
         selectedCourseId = null;
+        currentLesson = 0;
         updateCourseButtons();
+        courseDetails.forEach((detail) => {
+            detail.open = false;
+        });
+        updateCourseDetailsState();
         void loadProgress(currentUser);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 });
 
@@ -481,10 +514,10 @@ lessonSelectorButtons.forEach((button) => {
         if (targetLesson > maxAvailableLesson) return;
 
         currentLesson = targetLesson;
-        if (courseDetails) {
-            courseDetails.open = false;
-            updateCourseDetailsState();
-        }
+        courseDetails.forEach((detail) => {
+            detail.open = false;
+        });
+        updateCourseDetailsState();
         lessons.forEach((lesson, index) => {
             lesson.classList.toggle('active', index === targetLesson);
         });

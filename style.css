@@ -122,10 +122,16 @@ body {
 header {
     background: var(--card);
     border-bottom: 1px solid var(--line);
-    padding: 2px 18px 2px;
+    padding: 2px 18px 10px;
     position: sticky;
     top: 0;
     z-index: 5
+}
+
+.progress-area {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px
 }
 
 .top {
@@ -140,9 +146,19 @@ header {
 }
 
 .brand {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--text);
     font-weight: 800;
     font-size: 18px;
-    letter-spacing: -.3px
+    letter-spacing: -.3px;
+    cursor: pointer;
+}
+
+.brand:hover {
+    color: var(--primary);
 }
 
 .avatar {
@@ -454,12 +470,19 @@ main {
 }
 
 .course-details {
-    margin: 0 0 18px;
-    background: rgba(255, 255, 255, 0.85);
+    margin: 0;
+    background: rgba(245, 247, 251, 0.96);
     border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 14px 18px;
-    box-shadow: 0 10px 18px rgba(31, 39, 61, 0.03);
+    border-radius: 14px;
+    padding: 8px 10px;
+    box-shadow: 0 8px 18px rgba(31, 39, 61, 0.02);
+    width: min(100%, 220px);
+    flex-shrink: 0;
+}
+
+.course-details-inline {
+    align-self: flex-end;
+    margin-top: 10px;
 }
 
 .course-details summary {
@@ -467,9 +490,13 @@ main {
     cursor: pointer;
     color: var(--primary);
     font-weight: 700;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
 }
 
 .course-details summary::-webkit-details-marker {
@@ -477,7 +504,7 @@ main {
 }
 
 .course-details[open] summary {
-    margin-bottom: 14px;
+    margin-bottom: 10px;
 }
 
 .lesson-selector {
@@ -554,6 +581,10 @@ main {
 }
 
 .lesson-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     padding: 18px 22px;
     border-bottom: 1px solid var(--line);
     color: var(--primary);
@@ -561,6 +592,10 @@ main {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: .08em;
+}
+
+.lesson-heading > span {
+    flex: 1;
 }
 
 .lesson .notion-frame {
