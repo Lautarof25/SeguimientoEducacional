@@ -14,6 +14,7 @@ const percent = document.querySelector('#percent');
 const header = document.querySelector('header');
 const startCourseButton = document.querySelector('#start-course');
 const viewProgressButton = document.querySelector('#view-progress');
+const homePanel = document.querySelector('.home-panel');
 const courseCards = [...document.querySelectorAll('.course-card')];
 const courseState = document.querySelector('#course-state');
 const lessons = [...document.querySelectorAll('.lesson')];
@@ -144,6 +145,9 @@ function applyProgress() {
     const totalLessons = course?.totalLessons || lessons.length;
     const lessonsContainer = document.querySelector('.lessons');
 
+    if (homePanel) {
+        homePanel.hidden = !!course;
+    }
     lessonsContainer.hidden = !course;
 
     if (!course) {
