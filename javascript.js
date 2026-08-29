@@ -11,12 +11,17 @@ const app = document.querySelector('#app');
 const logout = document.querySelector('#logout');
 const fill = document.querySelector('#fill');
 const percent = document.querySelector('#percent');
+const progressWrap = document.querySelector('.progress-wrap');
 const header = document.querySelector('header');
 const startCourseButton = document.querySelector('#start-course');
 const viewProgressButton = document.querySelector('#view-progress');
 const homePanel = document.querySelector('.home-panel');
 const courseCards = [...document.querySelectorAll('.course-card')];
 const courseState = document.querySelector('#course-state');
+const courseHeader = document.querySelector('#course-header');
+const courseTitle = document.querySelector('#course-title');
+const courseDetails = document.querySelector('#course-details');
+const courseSummary = document.querySelector('#course-summary');
 const lessonSelector = document.querySelector('#lesson-selector');
 const lessonSelectorButtons = [...document.querySelectorAll('.lesson-chip')];
 const lessons = [...document.querySelectorAll('.lesson')];
@@ -156,6 +161,32 @@ function updateLessonNavigationButtons() {
     });
 }
 
+function updateCourseHeader() {
+    const course = getSelectedCourse();
+
+    if (!courseHeader || !courseTitle) return;
+
+    const shouldShowHeader = !!course && !!courseDetails && courseDetails.open;
+    courseHeader.hidden = !shouldShowHeader;
+    courseTitle.textContent = course ? course.name : '';
+}
+
+function updateCourseDetailsState() {
+    if (!courseDetails || !courseSummary) return;
+
+    const course = getSelectedCourse();
+    if (!course) {
+        courseDetails.hidden = true;
+        courseDetails.open = true;
+        courseSummary.textContent = 'Ocultar clases';
+        return;
+    }
+
+    courseDetails.hidden = false;
+    courseSummary.textContent = courseDetails.open ? 'Ocultar clases' : 'Mostrar clases';
+    updateCourseHeader();
+}
+
 function updateLessonSelector() {
     if (!lessonSelector) return;
 
@@ -202,6 +233,11 @@ function showLesson(index) {
         currentLesson = safeIndex;
     }
 
+    if (courseDetails) {
+        courseDetails.open = false;
+        updateCourseDetailsState();
+    }
+
     lessons.forEach((lesson, lessonIndex) => {
         lesson.classList.toggle('active', lessonIndex === currentLesson);
     });
@@ -214,6 +250,10 @@ function applyProgress() {
     const totalLessons = course?.totalLessons || lessons.length;
     const lessonsContainer = document.querySelector('.lessons');
 
+    if (progressWrap) {
+        progressWrap.hidden = !course;
+    }
+
     if (homePanel) {
         homePanel.hidden = !!course;
     }
@@ -224,6 +264,7 @@ function applyProgress() {
         currentLesson = 0;
         fill.style.width = '0%';
         percent.textContent = '0%';
+        updateCourseHeader();
         lessons.forEach((lesson) => {
             lesson.classList.remove('active', 'completed');
             const done = lesson.querySelector('.done');
@@ -259,6 +300,7 @@ function applyProgress() {
     const progress = Math.round((completedLessons / totalLessons) * 100);
     fill.style.width = `${progress}%`;
     percent.textContent = `${progress}%`;
+    updateCourseDetailsState();
     updateCourseOptionsText();
     updateCourseStateMessage();
     updateLessonNavigationButtons();
@@ -396,9 +438,17 @@ courseCards.forEach((card) => {
     card.addEventListener('click', () => {
         selectedCourseId = card.dataset.courseId;
         currentLesson = 0;
+        if (courseDetails) {
+            courseDetails.open = true;
+            updateCourseDetailsState();
+        }
         updateCourseButtons();
         void loadProgress(currentUser);
     });
+});
+
+courseDetails?.addEventListener('toggle', () => {
+    updateCourseDetailsState();
 });
 
 updateCourseButtons();
@@ -431,6 +481,10 @@ lessonSelectorButtons.forEach((button) => {
         if (targetLesson > maxAvailableLesson) return;
 
         currentLesson = targetLesson;
+        if (courseDetails) {
+            courseDetails.open = false;
+            updateCourseDetailsState();
+        }
         lessons.forEach((lesson, index) => {
             lesson.classList.toggle('active', index === targetLesson);
         });
