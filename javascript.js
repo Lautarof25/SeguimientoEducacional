@@ -12,6 +12,8 @@ const logout = document.querySelector('#logout');
 const fill = document.querySelector('#fill');
 const percent = document.querySelector('#percent');
 const header = document.querySelector('header');
+const startCourseButton = document.querySelector('#start-course');
+const viewProgressButton = document.querySelector('#view-progress');
 const lessons = [...document.querySelectorAll('.lesson')];
 const config = window.SUPABASE_CONFIG || {};
 const supabaseClient = window.supabase && config.url && config.anonKey
@@ -151,6 +153,21 @@ authForm.addEventListener('submit', async (event) => {
 
 logout.addEventListener('click', async () => {
     await supabaseClient?.auth.signOut();
+});
+
+startCourseButton?.addEventListener('click', () => {
+    const firstLesson = document.querySelector('#lesson-1');
+    if (!firstLesson) return;
+    const firstPosition = firstLesson.getBoundingClientRect().top + window.scrollY;
+    const scrollOffset = header.offsetHeight + 16;
+    window.scrollTo({ top: firstPosition - scrollOffset, behavior: 'smooth' });
+});
+
+viewProgressButton?.addEventListener('click', () => {
+    const progressSection = document.querySelector('header');
+    if (!progressSection) return;
+    const progressPosition = progressSection.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: progressPosition, behavior: 'smooth' });
 });
 
 lessons.forEach((lesson, index) => {
