@@ -41,11 +41,6 @@ const availableCourses = [{
     name: 'Armado Cubo Rubik',
     level: 'Nivel intermedio',
     totalLessons: 8
-}, {
-    id: 'ventas-y-negociacion',
-    name: 'Ventas y negociación',
-    level: 'Nivel avanzado',
-    totalLessons: 4
 }];
 
 let isRegistering = false;
@@ -203,6 +198,7 @@ function updateLessonSelector() {
 
     const course = getSelectedCourse();
     const totalLessons = course?.totalLessons || lessons.length;
+
     lessonSelector.forEach((selector) => {
         if (!course) {
             selector.hidden = true;
@@ -214,15 +210,17 @@ function updateLessonSelector() {
         if (label) {
             label.textContent = `${totalLessons} clases`;
         }
-    });
 
-    lessonSelectorButtons.forEach((button) => {
-        const index = Number(button.dataset.lessonIndex || 0);
-        const isSelected = index === currentLesson;
-        const isAvailable = index <= completedLessons || completedLessons >= totalLessons;
-        button.classList.toggle('selected', isSelected);
-        button.disabled = !isAvailable;
-        button.setAttribute('aria-disabled', String(!isAvailable));
+        const chips = [...selector.querySelectorAll('.lesson-chip')];
+        chips.forEach((button, index) => {
+            const isVisible = index < totalLessons;
+            button.hidden = !isVisible;
+            const isSelected = index === currentLesson;
+            const isAvailable = index <= completedLessons || completedLessons >= totalLessons;
+            button.classList.toggle('selected', isSelected && isVisible);
+            button.disabled = !isAvailable || !isVisible;
+            button.setAttribute('aria-disabled', String(!isAvailable || !isVisible));
+        });
     });
 }
 
@@ -321,21 +319,9 @@ function applyProgress() {
 }
 
 function updateCourseOptionsText() {
-    const course = getSelectedCourse();
-    const totalLessons = course?.totalLessons || lessons.length;
     const selectorText = document.querySelector('.picker-count');
     if (selectorText) {
         selectorText.textContent = `${availableCourses.length} disponible${availableCourses.length > 1 ? 's' : ''}`;
-    }
-
-    const courseTitle = document.querySelector('.course-card h3');
-    const courseLevel = document.querySelector('.course-level');
-    if (courseTitle) courseTitle.textContent = course.name;
-    if (courseLevel) courseLevel.textContent = course.level;
-
-    const lessonList = document.querySelector('.course-meta li');
-    if (lessonList) {
-        lessonList.textContent = `${totalLessons} clases`;
     }
 }
 
