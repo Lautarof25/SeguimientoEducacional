@@ -50,6 +50,35 @@ let completedLessons = 0;
 let selectedCourseId = null;
 let currentUser = null;
 
+function getCourseLessonIndexes(courseId) {
+    if (!courseId) return [];
+    const courseLessons = lessons.filter((lesson) => lesson.dataset.courseId === courseId);
+    return courseLessons.map((lesson) => lessons.indexOf(lesson));
+}
+
+function getActiveLessonIndexes(course) {
+    if (!course) return [];
+    return getCourseLessonIndexes(course.id);
+}
+
+function getLessonIndexForProgress(course, lessonProgressIndex) {
+    const lessonIndexes = getActiveLessonIndexes(course);
+    return lessonIndexes[lessonProgressIndex] ?? lessonIndexes[lessonIndexes.length - 1] ?? 0;
+}
+
+function updateLessonHeadings() {
+    lessons.forEach((lesson, lessonIndex) => {
+        const heading = lesson.querySelector('.lesson-heading span');
+        if (!heading) return;
+
+        const courseId = lesson.dataset.courseId;
+        const courseLessonIndexes = getCourseLessonIndexes(courseId);
+        const localIndex = courseLessonIndexes.indexOf(lessonIndex);
+
+        heading.textContent = localIndex >= 0 ? `Clase ${localIndex + 1}` : `Clase ${lessonIndex + 1}`;
+    });
+}
+
 function setMessage(message, isError = false) {
     authMessage.textContent = message;
     authMessage.classList.toggle('error', isError);
@@ -198,7 +227,9 @@ function updateLessonSelector() {
     if (!lessonSelector.length) return;
 
     const course = getSelectedCourse();
-    const totalLessons = course?.totalLessons || lessons.length;
+    const courseLessonIndexes = getActiveLessonIndexes(course);
+    const actualLessonCount = Math.max(courseLessonIndexes.length, course?.totalLessons || 0);
+    const totalLessons = actualLessonCount || lessons.length;
 
     lessonSelector.forEach((selector) => {
         if (!course) {
@@ -213,11 +244,13 @@ function updateLessonSelector() {
         }
 
         const chips = [...selector.querySelectorAll('.lesson-chip')];
-        chips.forEach((button, index) => {
-            const isVisible = index < totalLessons;
+        chips.forEach((button) => {
+            const lessonIndex = Number(button.dataset.lessonIndex);
+            const isVisible = lessonIndex < totalLessons;
+            const isSelected = currentLesson === lessonIndex;
+            const isAvailable = lessonIndex <= completedLessons || completedLessons >= totalLessons;
+
             button.hidden = !isVisible;
-            const isSelected = index === currentLesson;
-            const isAvailable = index <= completedLessons || completedLessons >= totalLessons;
             button.classList.toggle('selected', isSelected && isVisible);
             button.disabled = !isAvailable || !isVisible;
             button.setAttribute('aria-disabled', String(!isAvailable || !isVisible));
@@ -237,6 +270,7 @@ function scrollToLesson(index) {
 function showLesson(index) {
     const course = getSelectedCourse();
     const totalLessons = course?.totalLessons || lessons.length;
+    const courseLessonIndexes = getActiveLessonIndexes(course);
 
     const safeIndex = Math.min(Math.max(index, 0), totalLessons - 1);
     if (completedLessons < totalLessons && safeIndex > completedLessons) {
@@ -245,22 +279,27 @@ function showLesson(index) {
         currentLesson = safeIndex;
     }
 
+    const activeLessonIndex = getLessonIndexForProgress(course, currentLesson);
+
     courseDetails.forEach((detail) => {
         detail.open = false;
     });
     updateCourseDetailsState();
 
     lessons.forEach((lesson, lessonIndex) => {
-        lesson.classList.toggle('active', lessonIndex === currentLesson);
+        const isInCourse = courseLessonIndexes.includes(lessonIndex);
+        lesson.classList.toggle('active', isInCourse && lessonIndex === activeLessonIndex);
+        lesson.hidden = !isInCourse;
     });
     updateLessonNavigationButtons();
-    scrollToLesson(currentLesson);
+    scrollToLesson(activeLessonIndex);
 }
 
 function applyProgress() {
     const course = getSelectedCourse();
     const totalLessons = course?.totalLessons || lessons.length;
     const lessonsContainer = document.querySelector('.lessons');
+    const courseLessonIndexes = getActiveLessonIndexes(course);
 
     if (homePanel) {
         homePanel.hidden = !!course;
@@ -279,6 +318,7 @@ function applyProgress() {
         updateCourseHeader();
         lessons.forEach((lesson) => {
             lesson.classList.remove('active', 'completed');
+            lesson.hidden = true;
             const done = lesson.querySelector('.done');
             const button = lesson.querySelector('.continue');
             done.checked = false;
@@ -299,14 +339,17 @@ function applyProgress() {
     lessons.forEach((lesson, index) => {
         const done = lesson.querySelector('.done');
         const button = lesson.querySelector('.continue');
-        const isCompleted = index < completedLessons;
+        const isInCourse = courseLessonIndexes.includes(index);
+        const isCompleted = isInCourse && courseLessonIndexes.indexOf(index) < completedLessons;
+        const activeLessonIndex = getLessonIndexForProgress(course, currentLesson);
 
         done.checked = isCompleted;
-        done.disabled = index !== completedLessons;
-        button.disabled = index !== completedLessons;
-        button.textContent = index < completedLessons ? 'Progreso actualizado ✓' : 'Continuar con el progreso →';
+        done.disabled = !isInCourse || index !== activeLessonIndex;
+        button.disabled = !isInCourse || index !== activeLessonIndex;
+        button.textContent = isCompleted ? 'Progreso actualizado ✓' : 'Continuar con el progreso →';
         lesson.classList.toggle('completed', isCompleted);
-        lesson.classList.toggle('active', index === currentLesson);
+        lesson.classList.toggle('active', isInCourse && index === activeLessonIndex);
+        lesson.hidden = !isInCourse;
     });
 
     const progress = Math.round((completedLessons / totalLessons) * 100);
@@ -317,6 +360,7 @@ function applyProgress() {
     updateCourseStateMessage();
     updateLessonNavigationButtons();
     updateLessonSelector();
+    updateLessonHeadings();
 }
 
 function updateCourseOptionsText() {
@@ -430,6 +474,7 @@ resetProgressButton?.addEventListener('click', async () => {
     if (course) {
         localStorage.removeItem(progressKey);
         completedLessons = 0;
+        currentLesson = 0;
     } else {
         const userPrefix = `aula-course-progress:${currentUser?.id || 'guest'}:`;
         Object.keys(localStorage).forEach((key) => {
@@ -438,6 +483,7 @@ resetProgressButton?.addEventListener('click', async () => {
             }
         });
         completedLessons = 0;
+        currentLesson = 0;
     }
 
     if (currentUser) {
@@ -449,6 +495,10 @@ resetProgressButton?.addEventListener('click', async () => {
     }
 
     applyProgress();
+    if (course) {
+        const firstLessonIndex = getLessonIndexForProgress(course, 0);
+        scrollToLesson(firstLessonIndex);
+    }
     setMessage(`Se reinició el progreso ${targetLabel}.`);
 });
 
@@ -465,8 +515,13 @@ brandHome?.addEventListener('click', () => {
 });
 
 startCourseButton?.addEventListener('click', () => {
-    const firstLesson = document.querySelector('#lesson-1');
+    const course = getSelectedCourse();
+    if (!course) return;
+
+    const firstLessonIndex = getLessonIndexForProgress(course, 0);
+    const firstLesson = lessons[firstLessonIndex];
     if (!firstLesson) return;
+
     const firstPosition = firstLesson.getBoundingClientRect().top + window.scrollY;
     const scrollOffset = header.offsetHeight + 16;
     window.scrollTo({ top: firstPosition - scrollOffset, behavior: 'smooth' });
@@ -499,6 +554,7 @@ courseDetails.forEach((detail) => {
 });
 
 updateCourseButtons();
+updateLessonHeadings();
 applyProgress();
 
 const previousLessonButtons = document.querySelectorAll('.lesson-back');
@@ -525,24 +581,31 @@ courseBackButtons.forEach((button) => {
 });
 
 lessonSelectorButtons.forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const course = getSelectedCourse();
         const targetLesson = Number(button.dataset.lessonIndex);
-        const maxAvailableLesson = completedLessons >= getSelectedCourse()?.totalLessons
-            ? getSelectedCourse().totalLessons - 1
-            : completedLessons;
+        const totalLessons = course?.totalLessons || 0;
+        const maxAvailableLesson = completedLessons >= totalLessons ? totalLessons - 1 : completedLessons;
 
         if (targetLesson > maxAvailableLesson) return;
 
         currentLesson = targetLesson;
+        const activeLessonIndex = getLessonIndexForProgress(course, currentLesson);
+
         courseDetails.forEach((detail) => {
-            detail.open = false;
+            detail.open = true;
         });
         updateCourseDetailsState();
         lessons.forEach((lesson, index) => {
-            lesson.classList.toggle('active', index === targetLesson);
+            const isInCourse = getActiveLessonIndexes(course).includes(index);
+            lesson.classList.toggle('active', isInCourse && index === activeLessonIndex);
+            lesson.hidden = !isInCourse;
         });
         updateLessonSelector();
-        scrollToLesson(targetLesson);
+        scrollToLesson(activeLessonIndex);
     });
 });
 
@@ -556,8 +619,12 @@ lessons.forEach((lesson, index) => {
     });
 
     button.addEventListener('click', async () => {
-        const totalLessons = getSelectedCourse()?.totalLessons || lessons.length;
-        if (index !== completedLessons || completedLessons >= totalLessons) return;
+        const course = getSelectedCourse();
+        const totalLessons = course?.totalLessons || lessons.length;
+        const courseLessonIndexes = getActiveLessonIndexes(course);
+        const activeCourseLessonIndex = courseLessonIndexes.indexOf(index);
+
+        if (activeCourseLessonIndex === -1 || activeCourseLessonIndex !== completedLessons || completedLessons >= totalLessons) return;
 
         completedLessons += 1;
         currentLesson = Math.min(completedLessons, totalLessons - 1);
@@ -578,9 +645,9 @@ lessons.forEach((lesson, index) => {
             return;
         }
 
-        const nextLesson = lessons[completedLessons];
-        if (nextLesson) {
-            scrollToLesson(completedLessons);
+        const nextLessonIndex = getLessonIndexForProgress(course, completedLessons);
+        if (nextLessonIndex !== undefined) {
+            scrollToLesson(nextLessonIndex);
         }
     });
 });
