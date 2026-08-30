@@ -43,8 +43,22 @@
                 <div class="top">
                     <button class="brand" id="brand-home" type="button" aria-label="Volver a la home">Aula</button>
                     <div class="header-actions">
-                        <button class="reset-progress" id="reset-progress" type="button">Reiniciar progreso</button>
-                        <button class="logout" id="logout" type="button">Cerrar sesión</button>
+                        <div class="profile-menu" id="profile-menu-wrapper">
+                            <button class="profile-toggle" id="profile-toggle" type="button" aria-expanded="false" aria-controls="profile-popup">
+                                Perfil
+                            </button>
+                            <div class="profile-popup" id="profile-popup" hidden>
+                                <div class="profile-summary">
+                                    <div class="profile-badge" aria-hidden="true">P</div>
+                                    <div class="profile-meta">
+                                        <strong id="profile-name">Perfil</strong>
+                                        <span id="profile-email">Cuenta</span>
+                                    </div>
+                                </div>
+                                <button class="reset-progress" id="reset-progress" type="button">Reiniciar progreso</button>
+                                <button class="logout" id="logout" type="button">Cerrar sesión</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="progress-area">

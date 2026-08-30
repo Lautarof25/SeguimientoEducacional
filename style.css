@@ -97,6 +97,108 @@ body {
     color: var(--primary-dark)
 }
 
+.profile-menu {
+    position: relative;
+}
+
+.profile-toggle {
+    width: auto;
+    margin: 0;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.profile-toggle:hover {
+    background: #f5f5ff;
+    border-color: rgba(122, 94, 255, 0.25);
+}
+
+.profile-popup {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    display: grid;
+    gap: 10px;
+    min-width: 220px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+    z-index: 10;
+}
+
+.profile-summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+}
+
+.profile-badge {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #8a7cf6);
+    color: #fff;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.profile-meta {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+}
+
+.profile-meta strong {
+    font-size: 13px;
+    color: var(--text);
+}
+
+.profile-meta span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    color: #64748b;
+}
+
+.profile-popup .reset-progress,
+.profile-popup .logout {
+    margin: 0;
+    padding: 0;
+    justify-self: stretch;
+    text-align: left;
+    background: transparent;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.profile-popup .logout {
+    color: var(--primary);
+}
+
+.profile-popup .reset-progress {
+    color: #b33a4c;
+}
+
+.profile-popup .reset-progress:hover,
+.profile-popup .logout:hover {
+    background: transparent;
+    opacity: 0.85;
+}
+
 .auth-message {
     min-height: 20px;
     margin: 14px 0 0;

@@ -8,6 +8,10 @@ const authMessage = document.querySelector('#auth-message');
 const confirmField = document.querySelector('#confirm-field');
 const confirmPassword = document.querySelector('#confirm-password');
 const app = document.querySelector('#app');
+const profileToggle = document.querySelector('#profile-toggle');
+const profilePopup = document.querySelector('#profile-popup');
+const profileName = document.querySelector('#profile-name');
+const profileEmail = document.querySelector('#profile-email');
 const logout = document.querySelector('#logout');
 const resetProgressButton = document.querySelector('#reset-progress');
 const fill = document.querySelector('#fill');
@@ -90,6 +94,12 @@ function setAuthLoading(isLoading) {
     authSubmit.textContent = isLoading ? 'Procesando...' : (isRegistering ? 'Crear cuenta' : 'Iniciar sesión');
 }
 
+function setProfilePopupOpen(isOpen) {
+    if (!profileToggle || !profilePopup) return;
+    profileToggle.setAttribute('aria-expanded', String(isOpen));
+    profilePopup.hidden = !isOpen;
+}
+
 function showAuth() {
     authScreen.hidden = false;
     app.hidden = true;
@@ -98,7 +108,10 @@ function showAuth() {
 function showApp(user) {
     authScreen.hidden = true;
     app.hidden = false;
-    logout.title = user.email || 'Cerrar sesión';
+    const email = user?.email || 'Cuenta';
+    logout.title = email;
+    if (profileName) profileName.textContent = user?.email ? 'Perfil' : 'Perfil';
+    if (profileEmail) profileEmail.textContent = email;
 }
 
 function setAuthMode(registering) {
@@ -423,6 +436,24 @@ async function startSession(session) {
     }
 }
 
+profileToggle?.addEventListener('click', () => {
+    const isOpen = profilePopup && profilePopup.hidden;
+    setProfilePopupOpen(isOpen);
+});
+
+document.addEventListener('click', (event) => {
+    const clickedInsideMenu = profilePopup?.contains(event.target) || profileToggle?.contains(event.target);
+    if (!clickedInsideMenu && profilePopup && !profilePopup.hidden) {
+        setProfilePopupOpen(false);
+    }
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && profilePopup && !profilePopup.hidden) {
+        setProfilePopupOpen(false);
+    }
+});
+
 authToggle.addEventListener('click', () => setAuthMode(!isRegistering));
 
 authForm.addEventListener('submit', async (event) => {
@@ -553,6 +584,7 @@ courseDetails.forEach((detail) => {
     });
 });
 
+setProfilePopupOpen(false);
 updateCourseButtons();
 updateLessonHeadings();
 applyProgress();
