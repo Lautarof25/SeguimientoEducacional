@@ -138,11 +138,15 @@ function getProgressStorageKey(userId) {
     return `aula-course-progress:${userId || 'guest'}:${selectedCourseId}`;
 }
 
-function getSavedProgress(userId) {
-    const course = getSelectedCourse();
+function getProgressStorageKeyForCourse(userId, courseId) {
+    return `aula-course-progress:${userId || 'guest'}:${courseId}`;
+}
+
+function getSavedProgressForCourse(userId, courseId) {
+    const course = availableCourses.find((item) => item.id === courseId);
     if (!course) return 0;
 
-    const rawValue = localStorage.getItem(getProgressStorageKey(userId));
+    const rawValue = localStorage.getItem(getProgressStorageKeyForCourse(userId, courseId));
     if (!rawValue) return 0;
 
     try {
@@ -152,6 +156,30 @@ function getSavedProgress(userId) {
     } catch (error) {
         return 0;
     }
+}
+
+function getSavedProgress(userId) {
+    const course = getSelectedCourse();
+    if (!course) return 0;
+
+    return getSavedProgressForCourse(userId, course.id);
+}
+
+function updateHomeCardProgress() {
+    courseCards.forEach((card) => {
+        const courseId = card.dataset.courseId;
+        const course = availableCourses.find((item) => item.id === courseId);
+        const fill = card.querySelector('.course-progress-fill');
+        const percentLabel = card.querySelector('.course-progress-header strong');
+
+        if (!course || !fill || !percentLabel) return;
+
+        const savedProgress = getSavedProgressForCourse(currentUser?.id || 'guest', courseId);
+        const progress = Math.round((savedProgress / course.totalLessons) * 100);
+
+        fill.style.width = `${progress}%`;
+        percentLabel.textContent = `${progress}%`;
+    });
 }
 
 function updateCourseStateMessage() {
@@ -322,6 +350,7 @@ function applyProgress() {
         progressWrap.hidden = !course;
     }
     lessonsContainer.hidden = !course;
+    updateHomeCardProgress();
 
     if (!course) {
         completedLessons = 0;
@@ -368,6 +397,7 @@ function applyProgress() {
     const progress = Math.round((completedLessons / totalLessons) * 100);
     fill.style.width = `${progress}%`;
     percent.textContent = `${progress}%`;
+    updateHomeCardProgress();
     updateCourseDetailsState();
     updateCourseOptionsText();
     updateCourseStateMessage();
