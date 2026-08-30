@@ -9,6 +9,7 @@ const confirmField = document.querySelector('#confirm-field');
 const confirmPassword = document.querySelector('#confirm-password');
 const app = document.querySelector('#app');
 const logout = document.querySelector('#logout');
+const resetProgressButton = document.querySelector('#reset-progress');
 const fill = document.querySelector('#fill');
 const percent = document.querySelector('#percent');
 const progressWrap = document.querySelector('.progress-wrap');
@@ -416,6 +417,39 @@ authForm.addEventListener('submit', async (event) => {
 
 logout.addEventListener('click', async () => {
     await supabaseClient?.auth.signOut();
+});
+
+resetProgressButton?.addEventListener('click', async () => {
+    const course = getSelectedCourse();
+    const targetLabel = course ? `de ${course.name}` : 'de todos los cursos';
+    const confirmed = window.confirm(`¿Querés reiniciar el progreso ${targetLabel}?`);
+    if (!confirmed) return;
+
+    const progressKey = getProgressStorageKey(currentUser?.id || 'guest');
+
+    if (course) {
+        localStorage.removeItem(progressKey);
+        completedLessons = 0;
+    } else {
+        const userPrefix = `aula-course-progress:${currentUser?.id || 'guest'}:`;
+        Object.keys(localStorage).forEach((key) => {
+            if (key.startsWith(userPrefix)) {
+                localStorage.removeItem(key);
+            }
+        });
+        completedLessons = 0;
+    }
+
+    if (currentUser) {
+        try {
+            await saveProgress(currentUser);
+        } catch (error) {
+            console.warn('No se pudo reiniciar el progreso guardado:', error);
+        }
+    }
+
+    applyProgress();
+    setMessage(`Se reinició el progreso ${targetLabel}.`);
 });
 
 brandHome?.addEventListener('click', () => {

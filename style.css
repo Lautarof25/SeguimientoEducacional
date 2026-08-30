@@ -141,8 +141,33 @@ header {
     gap: 12px
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .top .logout {
     flex: 0 0 auto
+}
+
+.reset-progress {
+    width: auto;
+    margin: 0;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: #b33a4c;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.reset-progress:hover {
+    background: #fff3f5;
+    border-color: rgba(179, 58, 76, 0.25);
 }
 
 .brand {
