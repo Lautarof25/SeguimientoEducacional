@@ -37,10 +37,10 @@ const availableCourses = [{
     level: 'Nivel inicial',
     totalLessons: 4
 }, {
-    id: 'productividad-personal',
-    name: 'Productividad personal',
+    id: 'armado-cubo',
+    name: 'Armado Cubo Rubik',
     level: 'Nivel intermedio',
-    totalLessons: 4
+    totalLessons: 8
 }, {
     id: 'ventas-y-negociacion',
     name: 'Ventas y negociación',
