@@ -173,6 +173,60 @@ body {
     color: #64748b;
 }
 
+.profile-details {
+    display: grid;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+}
+
+.profile-field {
+    display: grid;
+    gap: 6px;
+    color: var(--text);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.profile-field input {
+    position: static;
+    opacity: 1;
+    width: 100%;
+    border: 1px solid #dfe5ef;
+    border-radius: 10px;
+    padding: 9px 10px;
+    background: #fff;
+    color: var(--text);
+    font: inherit;
+}
+
+.profile-field input::placeholder {
+    color: #7a8497;
+    opacity: 1;
+}
+
+.profile-field input:focus {
+    outline: 3px solid #e9e7ff;
+    border-color: var(--primary);
+}
+
+.profile-save {
+    margin-top: 2px;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--primary), #7b6dff);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.profile-save:hover {
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+}
+
 .profile-popup .reset-progress,
 .profile-popup .logout {
     margin: 0;

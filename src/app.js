@@ -19,8 +19,12 @@ export function createApp({ document, window, supabaseClient }) {
     const app = document.querySelector('#app');
     const profileToggle = document.querySelector('#profile-toggle');
     const profilePopup = document.querySelector('#profile-popup');
+    const profileMenu = document.querySelector('#profile-menu-wrapper');
     const profileName = document.querySelector('#profile-name');
     const profileEmail = document.querySelector('#profile-email');
+    const profileFirstName = document.querySelector('#profile-first-name');
+    const profileLastName = document.querySelector('#profile-last-name');
+    const profileSave = document.querySelector('#profile-save');
     const logout = document.querySelector('#logout');
     const resetProgressButton = document.querySelector('#reset-progress');
     const fill = document.querySelector('#fill');
@@ -60,10 +64,47 @@ export function createApp({ document, window, supabaseClient }) {
         return `aula-course-progress:${userId || 'guest'}:${selectedCourseId}`;
     }
 
+    function getProfileStorageKey(userId) {
+        return `aula-user-profile:${userId || 'guest'}`;
+    }
+
+    function getSavedProfile(userId) {
+        const rawProfile = localStorage.getItem(getProfileStorageKey(userId));
+        if (!rawProfile) return { firstName: '', lastName: '' };
+
+        try {
+            const parsed = JSON.parse(rawProfile);
+            return {
+                firstName: typeof parsed?.firstName === 'string' ? parsed.firstName : '',
+                lastName: typeof parsed?.lastName === 'string' ? parsed.lastName : ''
+            };
+        } catch (error) {
+            return { firstName: '', lastName: '' };
+        }
+    }
+
     function getSavedProgress(userId) {
         const course = getSelectedCourse();
         if (!course) return 0;
         return getSavedProgressForCourse(userId, course.id);
+    }
+
+    function updateProfileSummary() {
+        const userProfile = getSavedProfile(currentUser?.id || 'guest');
+        const fullName = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ').trim();
+
+        if (profileName) profileName.textContent = fullName || 'Perfil';
+        if (profileEmail) profileEmail.textContent = currentUser?.email || 'Cuenta';
+        if (profileFirstName) profileFirstName.value = userProfile.firstName;
+        if (profileLastName) profileLastName.value = userProfile.lastName;
+    }
+
+    function syncProfileDraftToSummary() {
+        const firstName = profileFirstName?.value.trim() || '';
+        const lastName = profileLastName?.value.trim() || '';
+        const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
+
+        if (profileName) profileName.textContent = fullName || 'Perfil';
     }
 
     function updateHomeCardProgress() {
@@ -291,8 +332,8 @@ export function createApp({ document, window, supabaseClient }) {
             app.hidden = false;
             const email = session.user?.email || 'Cuenta';
             logout.title = email;
-            if (profileName) profileName.textContent = 'Perfil';
             if (profileEmail) profileEmail.textContent = email;
+            updateProfileSummary();
         } catch (error) {
             authScreen.hidden = false;
             app.hidden = true;
@@ -311,13 +352,40 @@ export function createApp({ document, window, supabaseClient }) {
         setMessage(authMessage, '');
     }
 
-    profileToggle?.addEventListener('click', () => {
+    profileToggle?.addEventListener('click', (event) => {
+        event.stopPropagation();
+        updateProfileSummary();
         const isOpen = profilePopup && profilePopup.hidden;
         setProfilePopupOpen(profileToggle, profilePopup, isOpen);
     });
 
+    profilePopup?.addEventListener('pointerdown', (event) => {
+        if (event.target instanceof Element) {
+            const clickedControl = event.target.closest('input, button');
+            if (clickedControl) {
+                event.stopPropagation();
+            }
+        }
+    });
+    profilePopup?.addEventListener('click', (event) => event.stopPropagation());
+    profileFirstName?.addEventListener('input', syncProfileDraftToSummary);
+    profileLastName?.addEventListener('input', syncProfileDraftToSummary);
+
+    profileSave?.addEventListener('click', () => {
+        const userId = currentUser?.id || 'guest';
+        const profile = {
+            firstName: profileFirstName?.value.trim() || '',
+            lastName: profileLastName?.value.trim() || ''
+        };
+
+        localStorage.setItem(getProfileStorageKey(userId), JSON.stringify(profile));
+        updateProfileSummary();
+        setMessage(authMessage, 'Perfil actualizado.', false);
+    });
+
     document.addEventListener('click', (event) => {
-        const clickedInsideMenu = profilePopup?.contains(event.target) || profileToggle?.contains(event.target);
+        const target = event.target;
+        const clickedInsideMenu = target instanceof Element && profileMenu?.contains(target);
         if (!clickedInsideMenu && profilePopup && !profilePopup.hidden) {
             setProfilePopupOpen(profileToggle, profilePopup, false);
         }
