@@ -22,11 +22,11 @@ export const courseDefinitions = [
             { title: 'Clase 1', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080ba882ed688620d7a19' },
             { title: 'Clase 2', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90805e9f8ee93340dc78ea' },
             { title: 'Clase 3', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080699c8afbdb762e728d' },
-            { title: 'Clase 4', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080b79c5ea4cbe1d0d037' },
-            { title: 'Clase 5', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080d1a3cc0b98267ef8f1' },
-            { title: 'Clase 6', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080de83ec5f6d7d311f66' },
-            { title: 'Clase 7', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90808e84d8c82ef8b4ee5c' },
-            { title: 'Clase 8', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90805891f883d75ea5d7ea' }
+            { title: 'Clase 4', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080468d9ef5ac0634c736' },
+            { title: 'Clase 5', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e908045b23eeb0d952be0f5' },
+            { title: 'Clase 6', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90803188d6e8f460015c2a' },
+            { title: 'Clase 7', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90803e8026ee62fa5e7898' },
+            { title: 'Clase 8', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080b48b2fce5e10fdccf8' }
         ]
     }
 ];
