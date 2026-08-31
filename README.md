@@ -1,5 +1,9 @@
 # SeguimientoEducacional
 
+## Documentación del proyecto
+
+La documentación completa del proyecto, incluyendo su objetivo, arquitectura, flujo de funcionamiento y configuración, está disponible en [docs/README.md](docs/README.md).
+
 ## Configuración de autenticación
 
 La aplicación usa Supabase Auth para registro/login y guarda el avance de cada usuario en `lesson_progress`.
