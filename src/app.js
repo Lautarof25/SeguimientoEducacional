@@ -276,6 +276,7 @@ export function createApp({ document, window, supabaseClient }) {
         if (lessonsContainer) lessonsContainer.hidden = !course;
 
         updateHomeCardProgress();
+        updateCourseOptionsText();
 
         if (!course) {
             completedLessons = 0;
