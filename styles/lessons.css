@@ -1,0 +1,104 @@
+.lesson-selector {
+    margin: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+}
+
+.selector-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.selector-label {
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.lesson-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.lesson-chip {
+    width: auto;
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(99, 91, 255, 0.2);
+    background: #f5f3ff;
+    color: var(--text);
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.lesson-chip:hover {
+    background: #efebff;
+}
+
+.lesson-chip.selected {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.lessons {
+    display: grid;
+    gap: 22px;
+}
+
+.notion-frame {
+    display: block;
+    width: 100%;
+    height: calc(100% + 44px);
+    min-height: 0;
+    border: 0;
+    background: #fff;
+    transform: translateY(-44px)
+}
+
+.notion-frame-wrap {
+    height: min(70vh, 820px);
+    min-height: 600px;
+    overflow: hidden;
+    background: #fff
+}
+
+.lesson-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(99, 91, 255, 0.04), rgba(255, 255, 255, 0.9));
+    color: var(--primary);
+}
+
+.lesson-course-name {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.lesson-course-step {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--primary);
+    text-transform: uppercase;
+}
+
+.lesson .notion-frame {
+    height: calc(100% + 44px)
+}
+

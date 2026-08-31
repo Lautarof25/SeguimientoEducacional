@@ -1,0 +1,23 @@
+@media (max-width: 600px) {
+    .certificate-dialog {
+        padding: 18px 14px 14px;
+    }
+
+    .certificate-paper {
+        padding: 24px 18px 18px;
+    }
+
+    .certificate-footer {
+        flex-direction: column;
+    }
+
+    .certificate-actions {
+        flex-direction: column-reverse;
+    }
+
+    .certificate-secondary,
+    .certificate-primary {
+        width: 100%;
+    }
+}
+

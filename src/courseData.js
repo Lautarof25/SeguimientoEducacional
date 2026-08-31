@@ -2,7 +2,7 @@ export const courseDefinitions = [
     {
         id: 'ingenieria-de-prompting',
         name: 'Ingeniería de prompting',
-        emoji: '🧠',
+        emoji: '🤖',
         level: 'Nivel inicial',
         totalLessons: 4,
         lessons: [

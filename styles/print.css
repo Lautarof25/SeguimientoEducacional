@@ -1,0 +1,26 @@
+@media print {
+    body {
+        background: white;
+    }
+
+    .certificate-modal {
+        position: static;
+        display: block;
+        padding: 0;
+    }
+
+    .certificate-backdrop,
+    .certificate-close,
+    .certificate-actions {
+        display: none !important;
+    }
+
+    .certificate-dialog {
+        box-shadow: none;
+        border: 0;
+        max-width: none;
+        width: 100%;
+        padding: 0;
+    }
+}
+

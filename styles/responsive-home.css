@@ -1,0 +1,38 @@
+@media (max-width: 820px) {
+    .home-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .home-copy {
+        padding: 0;
+    }
+}
+
+@media (max-width: 699px) {
+    .notion-frame-wrap {
+        width: 100vw;
+        max-width: none;
+        margin-left: calc((100% - 100vw) / 2);
+        margin-right: calc((100% - 100vw) / 2);
+        min-height: calc(100vh - 24px)
+    }
+
+    .home-panel {
+        padding: 12px;
+    }
+
+    .home-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+        width: 100%;
+    }
+
+    .course-card {
+        padding: 18px 16px;
+    }
+}
+

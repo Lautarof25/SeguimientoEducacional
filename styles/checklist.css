@@ -1,0 +1,52 @@
+.check {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    cursor: pointer
+}
+
+input {
+    position: absolute;
+    opacity: 0
+}
+
+.box {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #cbd0dc;
+    border-radius: 7px;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    transition: .2s
+}
+
+.box:after {
+    content: "✓";
+    font-weight: 900;
+    color: #fff;
+    transform: scale(0);
+    transition: .15s
+}
+
+input:checked+.box {
+    background: var(--success);
+    border-color: var(--success)
+}
+
+input:checked+.box:after {
+    transform: scale(1)
+}
+
+.check-text strong {
+    display: block;
+    font-size: 15px;
+    margin-bottom: 3px
+}
+
+.check-text span {
+    font-size: 13px;
+    color: var(--muted)
+}
+

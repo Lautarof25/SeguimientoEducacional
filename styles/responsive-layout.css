@@ -1,0 +1,22 @@
+@media(min-width:700px) {
+    header {
+        border-radius: 0 0 18px 18px;
+        padding-left: 28px;
+        padding-right: 28px
+    }
+
+    main {
+        padding: 0 28px 36px
+    }
+
+    h1 {
+        font-size: 34px
+    }
+
+    .lesson-body {
+        padding: 30px
+    }
+
+    .action {
+        padding: 20px 30px
+    }
