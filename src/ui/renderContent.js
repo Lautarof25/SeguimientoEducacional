@@ -7,9 +7,10 @@ export function renderCourseCards() {
     grid.innerHTML = courseDefinitions.map((course) => `
         <button class="course-card" type="button" data-course-id="${course.id}" aria-pressed="false" aria-label="Seleccionar curso ${course.name}">
             <div class="course-card-top">
-                <span class="course-tag">Curso</span>
+                <span class="course-tag">${course.emoji || '📘'} Curso</span>
                 <span class="course-level">${course.level}</span>
             </div>
+            <div class="course-card-icon" aria-hidden="true">${course.emoji || '📘'}</div>
             <h3>${course.name}</h3>
             <p>${course.description || 'Curso disponible para seguir tu progreso.'}</p>
             <ul class="course-meta">
@@ -40,9 +41,10 @@ export function renderLessons() {
         `).join('');
 
         return `
-            <section class="lesson" id="lesson-${course.id}-${lessonIndex + 1}" data-course-id="${course.id}">
+            <section class="lesson" id="lesson-${course.id}-${lessonIndex + 1}" data-course-id="${course.id}" data-course-name="${course.name}">
                 <div class="lesson-heading">
-                    <span>Clase ${lessonIndex + 1}</span>
+                    <span class="lesson-course-name">${course.name}</span>
+                    <span class="lesson-course-step">Clase ${lessonIndex + 1}</span>
                 </div>
                 <div class="notion-frame-wrap">
                     <iframe class="notion-frame" src="${lesson.notionUrl}" title="Contenido de la clase ${lessonIndex + 1}" allowfullscreen></iframe>

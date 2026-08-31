@@ -2,6 +2,7 @@ export const courseDefinitions = [
     {
         id: 'ingenieria-de-prompting',
         name: 'Ingeniería de prompting',
+        emoji: '🧠',
         level: 'Nivel inicial',
         totalLessons: 4,
         lessons: [
@@ -14,6 +15,7 @@ export const courseDefinitions = [
     {
         id: 'armado-cubo',
         name: 'Armado Cubo Rubik',
+        emoji: '🧩',
         level: 'Nivel intermedio',
         totalLessons: 8,
         lessons: [

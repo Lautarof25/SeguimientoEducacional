@@ -82,13 +82,16 @@ export function updateCourseDetailsState(courseDetails, courseSummary, selectedC
 
 export function updateLessonHeadings(lessons, getCourseLessonIndexes) {
     lessons.forEach((lesson, lessonIndex) => {
-        const heading = lesson.querySelector('.lesson-heading span');
-        if (!heading) return;
+        const courseNameEl = lesson.querySelector('.lesson-course-name');
+        const stepEl = lesson.querySelector('.lesson-course-step');
+        if (!courseNameEl || !stepEl) return;
 
         const courseId = lesson.dataset.courseId;
         const courseLessonIndexes = getCourseLessonIndexes(courseId);
         const localIndex = courseLessonIndexes.indexOf(lessonIndex);
+        const courseName = lesson.dataset.courseName || 'Curso';
 
-        heading.textContent = localIndex >= 0 ? `Clase ${localIndex + 1}` : `Clase ${lessonIndex + 1}`;
+        courseNameEl.textContent = courseName;
+        stepEl.textContent = localIndex >= 0 ? `Clase ${localIndex + 1}` : `Clase ${lessonIndex + 1}`;
     });
 }

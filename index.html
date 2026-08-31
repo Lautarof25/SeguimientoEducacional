@@ -41,7 +41,10 @@
         <div class="shell" id="app" hidden>
             <header>
                 <div class="top">
-                    <button class="brand" id="brand-home" type="button" aria-label="Volver a la home">Aula</button>
+                    <button class="brand" id="brand-home" type="button" aria-label="Volver a la home">
+                        <span class="brand-mark" aria-hidden="true">🎓</span>
+                        <span>Aula</span>
+                    </button>
                     <div class="header-actions">
                         <div class="profile-menu" id="profile-menu-wrapper">
                             <button class="profile-toggle" id="profile-toggle" type="button" aria-expanded="false" aria-controls="profile-popup">
@@ -78,14 +81,8 @@
                             <span class="eyebrow">Curso en línea</span>
                             <h2>Aprendé paso a paso y sigue tu progreso.</h2>
                             <p>Un recorrido estructurado para avanzar con claridad, mantener el ritmo y completar cada clase con confianza.</p>
-                            <div class="home-actions">
-                                <button class="primary-btn" id="start-course" type="button">Comenzar curso</button>
-                                <button class="secondary-btn" id="view-progress" type="button">Ver progreso</button>
-                            </div>
                         </div>
                     </div>
-
-                    <div class="course-grid" aria-label="Cursos disponibles"></div>
 
                     <div class="course-picker" aria-label="Selector de cursos">
                         <div class="picker-header">
@@ -94,6 +91,8 @@
                         </div>
                         <p class="course-state" id="course-state">Elegí un curso para cargar tu progreso.</p>
                     </div>
+
+                    <div class="course-grid" aria-label="Cursos disponibles"></div>
                 </section>
 
                 <div class="lessons" hidden>
