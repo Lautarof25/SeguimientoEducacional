@@ -1001,10 +1001,233 @@ p {
     color: var(--text);
 }
 
+.certificate-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1f845c, #23a66d);
+    box-shadow: 0 10px 20px rgba(35, 166, 109, 0.2);
+}
+
+.certificate-button:hover {
+    background: linear-gradient(135deg, #196c49, #1d8d5d);
+}
+
 .lesson-back:hover,
 .course-back:hover {
     background: #f5f4ff;
     color: var(--text);
+}
+
+.certificate-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.certificate-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.certificate-dialog {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 760px);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+    padding: 20px;
+}
+
+.certificate-close {
+    position: absolute;
+    right: 18px;
+    top: 18px;
+    width: 40px;
+    height: 40px;
+    margin: 0;
+    border-radius: 50%;
+    background: #f3f4f9;
+    color: var(--text);
+    padding: 0;
+    font-size: 18px;
+}
+
+.certificate-paper {
+    margin-top: 18px;
+    border-radius: 20px;
+    border: 4px solid rgba(99, 91, 255, 0.18);
+    background: linear-gradient(135deg, rgba(99, 91, 255, 0.04), rgba(255, 255, 255, 0.96));
+    padding: 32px 28px 24px;
+    text-align: center;
+}
+
+.certificate-badge {
+    display: inline-block;
+    margin: 0 0 12px;
+    border-radius: 999px;
+    background: rgba(99, 91, 255, 0.1);
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    padding: 8px 12px;
+    text-transform: uppercase;
+}
+
+.certificate-paper h2 {
+    margin: 0;
+    font-size: clamp(2rem, 3vw, 3.2rem);
+    letter-spacing: -0.06em;
+    color: var(--text);
+}
+
+.certificate-subtitle {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+.certificate-paper h3 {
+    margin: 18px 0 8px;
+    font-size: clamp(1.7rem, 2.5vw, 2.6rem);
+    color: var(--primary);
+}
+
+.certificate-copy {
+    margin: 0 auto;
+    max-width: 56ch;
+    color: var(--text);
+    font-size: 1.02rem;
+}
+
+.certificate-profile {
+    margin: 28px auto 0;
+    max-width: 420px;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    display: grid;
+    gap: 4px;
+}
+
+.certificate-profile span,
+.certificate-footer span {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 800;
+}
+
+.certificate-profile strong {
+    font-size: 1.08rem;
+    color: var(--text);
+}
+
+.certificate-profile small {
+    color: var(--muted);
+}
+
+.certificate-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 16px;
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    text-align: left;
+}
+
+.certificate-footer strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.certificate-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.certificate-secondary,
+.certificate-primary {
+    width: auto;
+    margin: 0;
+}
+
+.certificate-secondary {
+    background: #fff;
+    color: var(--text);
+    border: 1px solid var(--line);
+}
+
+.certificate-secondary:hover {
+    background: #f6f7fb;
+}
+
+@media (max-width: 600px) {
+    .certificate-dialog {
+        padding: 18px 14px 14px;
+    }
+
+    .certificate-paper {
+        padding: 24px 18px 18px;
+    }
+
+    .certificate-footer {
+        flex-direction: column;
+    }
+
+    .certificate-actions {
+        flex-direction: column-reverse;
+    }
+
+    .certificate-secondary,
+    .certificate-primary {
+        width: 100%;
+    }
+}
+
+@media print {
+    body {
+        background: white;
+    }
+
+    .certificate-modal {
+        position: static;
+        display: block;
+        padding: 0;
+    }
+
+    .certificate-backdrop,
+    .certificate-close,
+    .certificate-actions {
+        display: none !important;
+    }
+
+    .certificate-dialog {
+        box-shadow: none;
+        border: 0;
+        max-width: none;
+        width: 100%;
+        padding: 0;
+    }
 }
 
 .check {

@@ -40,7 +40,7 @@ export function updateCourseStateMessage(courseState, course, completedLessons, 
     }
 
     if (completedLessons >= totalLessons) {
-        courseState.textContent = `Elegiste ${course.name}. Completaste todas las ${totalLessons} clases de este curso.`;
+        courseState.textContent = `Elegiste ${course.name}. Completaste todas las ${totalLessons} clases y tu diploma de participación ya está listo.`;
         return;
     }
 

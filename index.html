@@ -115,6 +115,43 @@
             </main>
         </div>
     </div>
+
+    <div class="certificate-modal" id="certificate-modal" hidden>
+        <div class="certificate-backdrop" data-close-certificate="true"></div>
+        <div class="certificate-dialog" role="dialog" aria-modal="true" aria-labelledby="certificate-title">
+            <button class="certificate-close" id="close-certificate" type="button" aria-label="Cerrar diploma">✕</button>
+            <div class="certificate-paper" id="certificate-paper">
+                <p class="certificate-badge">Diploma de participación</p>
+                <h2 id="certificate-title">Curso completado</h2>
+                <p class="certificate-subtitle">Este diploma acredita que</p>
+                <h3 id="certificate-participant">Participante</h3>
+                <p class="certificate-copy">Participó y completó satisfactoriamente el curso de <strong id="certificate-course">Curso</strong>.</p>
+
+                <div class="certificate-profile">
+                    <span>Perfil del participante</span>
+                    <strong id="certificate-profile-name">Nombre y apellido</strong>
+                    <small id="certificate-profile-email">correo@ejemplo.com</small>
+                </div>
+
+                <div class="certificate-footer">
+                    <div>
+                        <span>Fecha</span>
+                        <strong id="certificate-date">Fecha</strong>
+                    </div>
+                    <div>
+                        <span>Curso</span>
+                        <strong id="certificate-course-meta">Curso</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="certificate-actions">
+                <button class="secondary-btn certificate-secondary" id="close-certificate-btn" type="button">Cerrar</button>
+                <button class="primary-btn certificate-primary" id="download-certificate" type="button">Descargar diploma</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
 window.SUPABASE_CONFIG = {

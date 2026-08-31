@@ -25,6 +25,16 @@ export function createApp({ document, window, supabaseClient }) {
     const profileFirstName = document.querySelector('#profile-first-name');
     const profileLastName = document.querySelector('#profile-last-name');
     const profileSave = document.querySelector('#profile-save');
+    const certificateModal = document.querySelector('#certificate-modal');
+    const closeCertificateButton = document.querySelector('#close-certificate');
+    const closeCertificateSecondaryButton = document.querySelector('#close-certificate-btn');
+    const downloadCertificateButton = document.querySelector('#download-certificate');
+    const certificateParticipant = document.querySelector('#certificate-participant');
+    const certificateCourse = document.querySelector('#certificate-course');
+    const certificateCourseMeta = document.querySelector('#certificate-course-meta');
+    const certificateProfileName = document.querySelector('#certificate-profile-name');
+    const certificateProfileEmail = document.querySelector('#certificate-profile-email');
+    const certificateDate = document.querySelector('#certificate-date');
     const logout = document.querySelector('#logout');
     const resetProgressButton = document.querySelector('#reset-progress');
     const fill = document.querySelector('#fill');
@@ -89,14 +99,25 @@ export function createApp({ document, window, supabaseClient }) {
         return getSavedProgressForCourse(userId, course.id);
     }
 
-    function updateProfileSummary() {
+    function getProfileDisplayData() {
         const userProfile = getSavedProfile(currentUser?.id || 'guest');
         const fullName = [userProfile.firstName, userProfile.lastName].filter(Boolean).join(' ').trim();
 
+        return {
+            fullName: fullName || 'Participante',
+            firstName: userProfile.firstName || '',
+            lastName: userProfile.lastName || '',
+            email: currentUser?.email || 'Cuenta'
+        };
+    }
+
+    function updateProfileSummary() {
+        const { fullName, email } = getProfileDisplayData();
+
         if (profileName) profileName.textContent = fullName || 'Perfil';
-        if (profileEmail) profileEmail.textContent = currentUser?.email || 'Cuenta';
-        if (profileFirstName) profileFirstName.value = userProfile.firstName;
-        if (profileLastName) profileLastName.value = userProfile.lastName;
+        if (profileEmail) profileEmail.textContent = email || 'Cuenta';
+        if (profileFirstName) profileFirstName.value = getSavedProfile(currentUser?.id || 'guest').firstName;
+        if (profileLastName) profileLastName.value = getSavedProfile(currentUser?.id || 'guest').lastName;
     }
 
     function syncProfileDraftToSummary() {
@@ -122,6 +143,35 @@ export function createApp({ document, window, supabaseClient }) {
             fillElement.style.width = `${progress}%`;
             percentLabel.textContent = `${progress}%`;
         });
+    }
+
+    function populateCertificate(course) {
+        if (!course) return;
+
+        const { fullName, email } = getProfileDisplayData();
+        const issueDate = new Date().toLocaleDateString('es-AR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+
+        if (certificateParticipant) certificateParticipant.textContent = fullName;
+        if (certificateCourse) certificateCourse.textContent = course.name;
+        if (certificateCourseMeta) certificateCourseMeta.textContent = course.name;
+        if (certificateProfileName) certificateProfileName.textContent = fullName;
+        if (certificateProfileEmail) certificateProfileEmail.textContent = email;
+        if (certificateDate) certificateDate.textContent = issueDate;
+    }
+
+    function showCertificate(course) {
+        if (!course || !certificateModal) return;
+        populateCertificate(course);
+        certificateModal.hidden = false;
+    }
+
+    function closeCertificate() {
+        if (!certificateModal) return;
+        certificateModal.hidden = true;
     }
 
     function updateLessonSelector() {
@@ -285,6 +335,12 @@ export function createApp({ document, window, supabaseClient }) {
         updateLessonNavigationButtons();
         updateLessonSelector();
         updateLessonHeadings(lessons, (courseId) => getCourseLessonIndexes(courseId, lessons));
+
+        document.querySelectorAll('.certificate-button').forEach((button) => {
+            const isCourseComplete = !!course && completedLessons >= totalLessons;
+            button.hidden = !isCourseComplete;
+            button.disabled = !isCourseComplete;
+        });
     }
 
     async function loadProgress(user) {
@@ -359,6 +415,17 @@ export function createApp({ document, window, supabaseClient }) {
         setProfilePopupOpen(profileToggle, profilePopup, isOpen);
     });
 
+    closeCertificateButton?.addEventListener('click', closeCertificate);
+    closeCertificateSecondaryButton?.addEventListener('click', closeCertificate);
+    certificateModal?.addEventListener('click', (event) => {
+        if (event.target instanceof Element && event.target.matches('[data-close-certificate="true"]')) {
+            closeCertificate();
+        }
+    });
+    downloadCertificateButton?.addEventListener('click', () => {
+        window.print();
+    });
+
     profilePopup?.addEventListener('pointerdown', (event) => {
         if (event.target instanceof Element) {
             const clickedControl = event.target.closest('input, button');
@@ -394,6 +461,10 @@ export function createApp({ document, window, supabaseClient }) {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && profilePopup && !profilePopup.hidden) {
             setProfilePopupOpen(profileToggle, profilePopup, false);
+        }
+
+        if (event.key === 'Escape' && certificateModal && !certificateModal.hidden) {
+            closeCertificate();
         }
     });
 
@@ -475,6 +546,7 @@ export function createApp({ document, window, supabaseClient }) {
     brandHome?.addEventListener('click', () => {
         selectedCourseId = null;
         currentLesson = 0;
+        closeCertificate();
         updateCourseButtons(courseCards, selectedCourseId);
         courseDetails.forEach((detail) => {
             detail.open = false;
@@ -541,6 +613,7 @@ export function createApp({ document, window, supabaseClient }) {
         button.addEventListener('click', () => {
             selectedCourseId = null;
             currentLesson = 0;
+            closeCertificate();
             updateCourseButtons(courseCards, selectedCourseId);
             courseDetails.forEach((detail) => {
                 detail.open = false;
@@ -548,6 +621,13 @@ export function createApp({ document, window, supabaseClient }) {
             updateCourseDetailsState(courseDetails, courseSummary, null);
             void loadProgress(currentUser);
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+
+    document.querySelectorAll('.certificate-button').forEach((button) => {
+        button.addEventListener('click', () => {
+            const course = getSelectedCourse();
+            showCertificate(course);
         });
     });
 
@@ -621,6 +701,10 @@ export function createApp({ document, window, supabaseClient }) {
             const nextLessonIndex = getLessonIndexForProgress(course, completedLessons, lessons);
             if (nextLessonIndex !== undefined) {
                 scrollToLesson(nextLessonIndex);
+            }
+
+            if (completedLessons >= totalLessons) {
+                showCertificate(course);
             }
         });
     });

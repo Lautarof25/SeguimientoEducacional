@@ -59,6 +59,7 @@ export function renderLessons() {
                         </span>
                     </label>
                     <button class="continue" disabled>Continuar con el progreso →</button>
+                    <button class="certificate-button" type="button" hidden>Ver diploma</button>
                     <div class="lesson-navs">
                         <button class="lesson-back" type="button">← Clase anterior</button>
                         <button class="course-back" type="button">Elegir otro curso</button>
