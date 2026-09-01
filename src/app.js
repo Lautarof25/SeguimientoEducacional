@@ -128,7 +128,27 @@ export function createApp({ document, window, supabaseClient }) {
         if (profileName) profileName.textContent = fullName || 'Perfil';
     }
 
-    function updateHomeCardProgress() {
+    async function getProgressMapForCurrentUser() {
+        if (!currentUser?.id || !supabaseClient) return null;
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('lesson_progress')
+                .select('course_id, completed_lessons')
+                .eq('user_id', currentUser.id);
+
+            if (error) throw error;
+
+            return Object.fromEntries((data || []).map((item) => [item.course_id, Number(item.completed_lessons || 0)]));
+        } catch (error) {
+            console.warn('No se pudo consultar el progreso de todos los cursos:', error);
+            return null;
+        }
+    }
+
+    async function updateHomeCardProgress() {
+        const progressMap = await getProgressMapForCurrentUser();
+
         courseCards.forEach((card) => {
             const courseId = card.dataset.courseId;
             const course = getCourseById(courseId);
@@ -137,7 +157,15 @@ export function createApp({ document, window, supabaseClient }) {
 
             if (!course || !fillElement || !percentLabel) return;
 
-            const savedProgress = getSavedProgressForCourse(currentUser?.id || 'guest', courseId);
+            let savedProgress = 0;
+            if (progressMap && Object.prototype.hasOwnProperty.call(progressMap, courseId)) {
+                savedProgress = progressMap[courseId];
+            } else if (!currentUser?.id) {
+                savedProgress = getSavedProgressForCourse('guest', courseId);
+            } else {
+                savedProgress = getSavedProgressForCourse(currentUser.id, courseId);
+            }
+
             const progress = getCourseProgressPercent(savedProgress, course.totalLessons);
 
             fillElement.style.width = `${progress}%`;
@@ -265,7 +293,7 @@ export function createApp({ document, window, supabaseClient }) {
         }
     }
 
-    function applyProgress() {
+    async function applyProgress() {
         const course = getSelectedCourse();
         const totalLessons = course?.totalLessons || lessons.length;
         const courseLessonIndexes = getActiveLessonIndexes(course, lessons);
@@ -275,7 +303,7 @@ export function createApp({ document, window, supabaseClient }) {
         const lessonsContainer = document.querySelector('.lessons');
         if (lessonsContainer) lessonsContainer.hidden = !course;
 
-        updateHomeCardProgress();
+        await updateHomeCardProgress();
         updateCourseOptionsText();
 
         if (!course) {
@@ -329,7 +357,7 @@ export function createApp({ document, window, supabaseClient }) {
         const progress = getCourseProgressPercent(completedLessons, totalLessons);
         if (fill) fill.style.width = `${progress}%`;
         if (percent) percent.textContent = `${progress}%`;
-        updateHomeCardProgress();
+        await updateHomeCardProgress();
         updateCourseDetailsState(courseDetails, courseSummary, course);
         updateCourseOptionsText();
         updateCourseStateMessage(courseState, course, completedLessons, totalLessons);
