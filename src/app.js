@@ -353,8 +353,14 @@ export function createApp({ document, window, supabaseClient }) {
             return;
         }
 
-        if (!user?.id || !supabaseClient) {
-            completedLessons = getSavedProgress(user?.id || 'guest');
+        if (!user?.id) {
+            completedLessons = getSavedProgress('guest');
+            applyProgress();
+            return;
+        }
+
+        if (!supabaseClient) {
+            completedLessons = getSavedProgress(user.id);
             applyProgress();
             return;
         }
@@ -369,12 +375,14 @@ export function createApp({ document, window, supabaseClient }) {
 
             if (error) throw error;
 
-            const savedProgress = data?.completed_lessons ?? getSavedProgress(user.id);
-            completedLessons = Number.isFinite(savedProgress) ? Math.max(0, Math.min(savedProgress, course.totalLessons)) : 0;
+            const savedProgress = data?.completed_lessons ?? 0;
+            completedLessons = Number.isFinite(savedProgress)
+                ? Math.max(0, Math.min(savedProgress, course.totalLessons))
+                : 0;
             applyProgress();
         } catch (error) {
             console.warn('No se pudo cargar el progreso desde Supabase:', error);
-            completedLessons = getSavedProgress(user.id);
+            completedLessons = 0;
             applyProgress();
         }
     }
