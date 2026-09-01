@@ -139,20 +139,20 @@ La lógica de progreso se concentra en:
 
 El flujo es:
 
-1. al seleccionar un curso, la app obtiene el curso actual,
-2. lee el progreso almacenado en `localStorage` para ese usuario y ese curso,
+1. al iniciar sesión, la app consulta el curso actual,
+2. busca el progreso del usuario autenticado en Supabase usando `user_id` y `course_id`,
 3. actualiza el estado de `completedLessons`,
 4. recalcula el porcentaje total,
 5. habilita o deshabilita lecciones según el progreso,
 6. y guarda el nuevo estado al marcar una clase como completada.
 
-La información se guarda en claves del tipo:
+La información se almacena en la tabla `public.lesson_progress` con una clave única por usuario y curso:
 
 ```text
-aula-course-progress:<userId>:<courseId>
+(user_id, course_id)
 ```
 
-Esto permite tener un progreso diferenciado por usuario y por curso.
+Esto permite que el mismo usuario vea el mismo progreso desde celular o PC, sin depender del navegador.
 
 ### 5.6 Certificado
 

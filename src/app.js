@@ -353,8 +353,30 @@ export function createApp({ document, window, supabaseClient }) {
             return;
         }
 
-        completedLessons = getSavedProgress(user?.id || 'guest');
-        applyProgress();
+        if (!user?.id || !supabaseClient) {
+            completedLessons = getSavedProgress(user?.id || 'guest');
+            applyProgress();
+            return;
+        }
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('lesson_progress')
+                .select('completed_lessons')
+                .eq('user_id', user.id)
+                .eq('course_id', course.id)
+                .maybeSingle();
+
+            if (error) throw error;
+
+            const savedProgress = data?.completed_lessons ?? getSavedProgress(user.id);
+            completedLessons = Number.isFinite(savedProgress) ? Math.max(0, Math.min(savedProgress, course.totalLessons)) : 0;
+            applyProgress();
+        } catch (error) {
+            console.warn('No se pudo cargar el progreso desde Supabase:', error);
+            completedLessons = getSavedProgress(user.id);
+            applyProgress();
+        }
     }
 
     async function saveProgress(user) {
@@ -367,9 +389,10 @@ export function createApp({ document, window, supabaseClient }) {
         try {
             const { error } = await supabaseClient.from('lesson_progress').upsert({
                 user_id: user.id,
+                course_id: selectedCourseId,
                 completed_lessons: completedLessons,
                 updated_at: progressValue.updatedAt
-            });
+            }, { onConflict: 'user_id,course_id' });
             if (error) throw error;
         } catch (error) {
             console.warn('No se pudo sincronizar el progreso con Supabase:', error);
@@ -528,9 +551,21 @@ export function createApp({ document, window, supabaseClient }) {
             currentLesson = 0;
         }
 
-        if (currentUser) {
+        if (currentUser && supabaseClient) {
             try {
-                await saveProgress(currentUser);
+                if (course) {
+                    await supabaseClient.from('lesson_progress').upsert({
+                        user_id: currentUser.id,
+                        course_id: course.id,
+                        completed_lessons: 0,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,course_id' });
+                } else {
+                    await supabaseClient
+                        .from('lesson_progress')
+                        .delete()
+                        .eq('user_id', currentUser.id);
+                }
             } catch (error) {
                 console.warn('No se pudo reiniciar el progreso guardado:', error);
             }

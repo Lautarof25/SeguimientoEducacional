@@ -13,10 +13,19 @@ La aplicación usa Supabase Auth para registro/login y guarda el avance de cada 
 
 ```sql
 create table public.lesson_progress (
-	user_id uuid primary key references auth.users(id) on delete cascade,
+	id uuid primary key default gen_random_uuid(),
+	user_id uuid not null references auth.users(id) on delete cascade,
+	course_id text not null,
 	completed_lessons integer not null default 0 check (completed_lessons between 0 and 4),
-	updated_at timestamptz not null default now()
+	updated_at timestamptz not null default now(),
+	unique (user_id, course_id)
 );
+
+create index if not exists idx_lesson_progress_user_id
+on public.lesson_progress (user_id);
+
+create index if not exists idx_lesson_progress_course_id
+on public.lesson_progress (course_id);
 
 alter table public.lesson_progress enable row level security;
 
