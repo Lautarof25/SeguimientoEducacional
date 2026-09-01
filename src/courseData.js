@@ -28,7 +28,30 @@ export const courseDefinitions = [
             { title: 'Clase 7', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e90803e8026ee62fa5e7898' },
             { title: 'Clase 8', notionUrl: 'https://fan-utahraptor-cfe.notion.site/ebd/3cc0c69b2e9080b48b2fce5e10fdccf8' }
         ]
-    }
+    },
+    {
+        id: 'emprender',
+        name: 'Emprender',
+        emoji: '💼',
+        level: 'Nivel inicial',
+        totalLessons: 14,
+        lessons: [
+            { title: 'Clase 1', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b02ab7e050880fca06bd3aef9ff1f71' },
+            { title: 'Clase 2', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b12ab7e05088020bf82c9774f486c3c' },
+            { title: 'Clase 3', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b22ab7e0508807e9b9ffa6b086a2bd8' },
+            { title: 'Clase 4', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b42ab7e05088097b2f4c20849713512' },
+            { title: 'Clase 5', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b92ab7e05088022af6eea156d58741d' },
+            { title: 'Clase 6', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3b92ab7e0508805dae98d59d687819e3' },
+            { title: 'Clase 7', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3ba2ab7e050880e98de7e15133afede0' },
+            { title: 'Clase 8', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3ba2ab7e05088007bbe0ed9473306e46' },
+            { title: 'Clase 9', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bb2ab7e050880fc9af1dc70b820dff9' },
+            { title: 'Clase 10', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bb2ab7e0508800d8ca6d4da16193f35' },
+            { title: 'Clase 11', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bb2ab7e05088041b47ce04271521262' },
+            { title: 'Clase 12', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bb2ab7e050880a0bd88f738ca8749ad' },
+            { title: 'Clase 13', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bb2ab7e0508803384d4f84d9ad7582e' },
+            { title: 'Clase 14', notionUrl: 'https://chambray-raven-b65.notion.site/ebd/3bd2ab7e050880799559f1c1a43206ac' }
+        ]
+    },
 ];
 
 export const availableCourses = courseDefinitions.map(({ lessons, ...course }) => course);
