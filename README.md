@@ -41,10 +41,6 @@ create policy "Users can update their own progress"
 	on public.lesson_progress for update
 	using (auth.uid() = user_id)
 	with check (auth.uid() = user_id);
-
-create policy "Users can delete their own progress"
-	on public.lesson_progress for delete
-	using (auth.uid() = user_id);
 ```
 
 3. Copia la URL del proyecto y la clave pública `anon` en `index.html`, dentro de `window.SUPABASE_CONFIG`:
