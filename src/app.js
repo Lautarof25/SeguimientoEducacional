@@ -1,7 +1,7 @@
 import { availableCourses, getCourseById, getCourseLessonIndexes, getActiveLessonIndexes, getLessonIndexForProgress, getCourseProgressPercent } from './domain/courseLogic.js';
 import { courseDefinitions } from './courseData.js';
 import { createAppState } from './state.js';
-import { getSavedProgressForCourse, saveCourseProgress, resetProgressForCourse, getAllProgressKeysForUser } from './services/progressService.js';
+import { getSavedProgressForCourse, saveCourseProgress, resetProgressForCourse, getAllProgressKeysForUser, getProgressStorageKeyForCourse } from './services/progressService.js';
 import { signIn, signUp, signOut, getSession } from './services/authService.js';
 import { setProfilePopupOpen, setMessage, setAuthLoading, updateCourseButtons, updateCourseStateMessage, updateCourseHeader, updateCourseDetailsState, updateLessonHeadings } from './ui.js';
 import { renderCourseCards, renderLessons } from './ui/renderContent.js';
@@ -158,7 +158,14 @@ export function createApp({ document, window, supabaseClient }) {
             if (!course || !fillElement || !percentLabel) return;
 
             let savedProgress = 0;
-            if (progressMap && Object.prototype.hasOwnProperty.call(progressMap, courseId)) {
+            const localProgressKey = currentUser?.id
+                ? getProgressStorageKeyForCourse(currentUser.id, courseId)
+                : getProgressStorageKeyForCourse('guest', courseId);
+            const hasLocalProgress = localStorage.getItem(localProgressKey) !== null;
+
+            if (hasLocalProgress) {
+                savedProgress = getSavedProgressForCourse(currentUser?.id || 'guest', courseId);
+            } else if (progressMap && Object.prototype.hasOwnProperty.call(progressMap, courseId)) {
                 savedProgress = progressMap[courseId];
             } else if (!currentUser?.id) {
                 savedProgress = getSavedProgressForCourse('guest', courseId);
@@ -387,6 +394,16 @@ export function createApp({ document, window, supabaseClient }) {
             return;
         }
 
+        const localProgress = getSavedProgressForCourse(user.id, course.id);
+        const localKey = getProgressStorageKeyForCourse(user.id, course.id);
+        const hasLocalProgressEntry = localStorage.getItem(localKey) !== null;
+
+        if (hasLocalProgressEntry) {
+            completedLessons = Math.max(0, Math.min(localProgress, course.totalLessons));
+            applyProgress();
+            return;
+        }
+
         if (!supabaseClient) {
             completedLessons = getSavedProgress(user.id);
             applyProgress();
@@ -433,6 +450,43 @@ export function createApp({ document, window, supabaseClient }) {
         } catch (error) {
             console.warn('No se pudo sincronizar el progreso con Supabase:', error);
         }
+    }
+
+    async function resetProgressState(user, course) {
+        const userId = user?.id || 'guest';
+
+        if (course) {
+            resetProgressForCourse(userId, course.id);
+        } else {
+            availableCourses.forEach((availableCourse) => {
+                saveCourseProgress(userId, availableCourse.id, 0);
+            });
+        }
+
+        completedLessons = 0;
+        currentLesson = 0;
+
+        if (user && supabaseClient) {
+            try {
+                if (course) {
+                    await supabaseClient.from('lesson_progress').upsert({
+                        user_id: user.id,
+                        course_id: course.id,
+                        completed_lessons: 0,
+                        updated_at: new Date().toISOString()
+                    }, { onConflict: 'user_id,course_id' });
+                } else {
+                    await supabaseClient
+                        .from('lesson_progress')
+                        .delete()
+                        .eq('user_id', user.id);
+                }
+            } catch (error) {
+                console.warn('No se pudo reiniciar el progreso guardado:', error);
+            }
+        }
+
+        await applyProgress();
     }
 
     async function startSession(session) {
@@ -574,40 +628,8 @@ export function createApp({ document, window, supabaseClient }) {
         const confirmed = window.confirm(`¿Querés reiniciar el progreso ${targetLabel}?`);
         if (!confirmed) return;
 
-        if (course) {
-            resetProgressForCourse(currentUser?.id || 'guest', course.id);
-            completedLessons = 0;
-            currentLesson = 0;
-        } else {
-            const userPrefix = `aula-course-progress:${currentUser?.id || 'guest'}:`;
-            getAllProgressKeysForUser(currentUser?.id || 'guest').forEach((key) => {
-                localStorage.removeItem(key);
-            });
-            completedLessons = 0;
-            currentLesson = 0;
-        }
+        await resetProgressState(currentUser, course);
 
-        if (currentUser && supabaseClient) {
-            try {
-                if (course) {
-                    await supabaseClient.from('lesson_progress').upsert({
-                        user_id: currentUser.id,
-                        course_id: course.id,
-                        completed_lessons: 0,
-                        updated_at: new Date().toISOString()
-                    }, { onConflict: 'user_id,course_id' });
-                } else {
-                    await supabaseClient
-                        .from('lesson_progress')
-                        .delete()
-                        .eq('user_id', currentUser.id);
-                }
-            } catch (error) {
-                console.warn('No se pudo reiniciar el progreso guardado:', error);
-            }
-        }
-
-        applyProgress();
         if (course) {
             const firstLessonIndex = getLessonIndexForProgress(course, 0, lessons);
             scrollToLesson(firstLessonIndex);

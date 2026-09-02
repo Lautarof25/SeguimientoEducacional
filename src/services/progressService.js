@@ -32,7 +32,7 @@ export function saveCourseProgress(userId, courseId, completedLessons) {
 }
 
 export function resetProgressForCourse(userId, courseId) {
-    localStorage.removeItem(getProgressStorageKeyForCourse(userId, courseId));
+    saveCourseProgress(userId, courseId, 0);
 }
 
 export function getAllProgressKeysForUser(userId) {
